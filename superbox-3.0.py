@@ -4,9 +4,10 @@ from pyray import *
 from time import *
 
 Fail = 0
-Border = 0
-Success = 1
-Neighbor = 2
+Border_x = 1
+Border_y = 2
+Success = 3
+Neighbor = 4
 
 # cool idea: temperature raised by collision
 
@@ -22,10 +23,10 @@ class Camera:
 
 def attempt_swap(world, x, y, dx, dy):
     if dx == 0 and dy == 0: return Fail
-    if y + dy == world_height: return Border
-    if y + dy == -1: return Border
-    if x + dx == world_width: return Border
-    if x + dx == -1: return Border
+    if y + dy == world_height: return Border_y
+    if y + dy == -1: return Border_y
+    if x + dx == world_width: return Border_x
+    if x + dx == -1: return Border_x
     if world[y+dy][x+dx] is not None: return Neighbor
 
     world[y+dy][x+dx] = cell
@@ -45,13 +46,13 @@ for y in range(world_height):
     for x in range(world_width):
         #color = Color(int(y/world_height*255), int(x/world_width*255), randint(0,255),255)
         color = Color(randint(0, 255), randint(0, 255), randint(0, 255), 255)
-        if random() < 0.3:
+        if random() < 0.6:
             world[y].append(Cell(color))
         else: world[y].append(None)
 camera = Camera(0, 0)
 
 init_window( width, height, "superbox 3.0")
-set_target_fps(60)
+set_target_fps(50)
 while not window_should_close():
 
     # ---- input ----
@@ -61,8 +62,7 @@ while not window_should_close():
         camera.y += get_mouse_delta().y / scale
     if get_mouse_wheel_move() > 0:
         if scale <= 50:
-            scale += 1 # there is some issue here idfk..
-            # i also shouldn't be adding i should be multiplxing
+            scale += 1 # i shouldn't be adding i should be multiplying
             camera.x += (width/scale - width/(scale - 1)) / 2
             camera.y += (height/scale - height/(scale - 1)) / 2
     if get_mouse_wheel_move() < 0:
@@ -72,13 +72,15 @@ while not window_should_close():
             camera.y += (height/scale - height/(scale + 1)) / 2
     #   interaction
     if is_mouse_button_down(MOUSE_BUTTON_RIGHT):
-        x = int(get_mouse_x() / scale - camera.x)
-        y = int(get_mouse_y() / scale - camera.y)
+        x = int(get_mouse_x() / scale - camera.x + (random()*4-2))
+        y = int(get_mouse_y() / scale - camera.y + (random()*4-2))
         if x >= 0 and x < world_width and y >= 0 and y < world_height:
             if is_key_down(KEY_LEFT_SHIFT):
                 world[y][x] = Cell(YELLOW)
                 world[y][x].vx = 0
-                world[y][x].vy = -1
+                world[y][x].vy = -1.5
+            elif is_key_down(KEY_LEFT_CONTROL):
+                world[y][x] = None
             else:
                 world[y][x] = Cell(GRAY)
                 world[y][x].vx = 0
@@ -89,7 +91,8 @@ while not window_should_close():
         for x, cell in enumerate(world[y]):
             if cell is None: continue
             # velocity from surroundings
-            cell.vy += 0.01
+            if cell.vy < .5:
+                cell.vy += 0.01
 
             # delta from velocity
             dx, dy = 0, 0
@@ -102,10 +105,14 @@ while not window_should_close():
             state = attempt_swap(world, x, y, dx, dy)
             if state == Neighbor:
                 # these ratios and the variation will depend on the bouncyness and absorption of the cells
-                world[y+dy][x+dx].vx += cell.vx * .5 + (random()*.05 - .025) # adding some randomisation to immitate particles not colliding perfectly centered but still in a pixely way
-                world[y+dy][x+dx].vy += cell.vy * .5 + (random()*.05 - .025)
+                world[y+dy][x+dx].vx += cell.vx * .5 + (random()*.1 - .05) # adding some randomisation to immitate particles not colliding perfectly centered but still in a pixely way
+                world[y+dy][x+dx].vy += cell.vy * .5 + (random()*.1 - .05)
                 cell.vx *= 0.4
                 cell.vy *= 0.4
+            if state == Border_x:
+                cell.vx *= -1
+            if state == Border_y:
+                cell.vy *= -1
 
     # ---- rendering ----
     begin_drawing()
@@ -124,10 +131,16 @@ while not window_should_close():
             if world[world_y][world_x] is None: continue
 
             cell = world[world_y][world_x]
-            draw_rectangle(int((x + camera.x%1)*scale), int((y + camera.y%1)*scale), scale, scale, cell.color)
+            if cell.vx == 0 and cell.vy == 0: r = 0; b = 0
+            else:
+                r = int(abs(cell.vx) / 1 ** 3 * 255) % 255
+                b = int(abs(cell.vy) / 1 ** 3 * 255) % 255
+            c = Color(r, 50, b, 255)
+            #c = cell.color
+            draw_rectangle(int((x + camera.x%1)*scale), int((y + camera.y%1)*scale), scale, scale, c)
 
-    draw_rectangle(int(width/2-1), int(height/2-8), 2, 16, WHITE)
-    draw_rectangle(int(width/2-8), int(height/2-1), 16, 2, WHITE)
+    draw_rectangle(int(width/2-1), int(height/2-7), 1, 14, WHITE)
+    draw_rectangle(int(width/2-7), int(height/2-1), 14, 1, WHITE)
     draw_fps(3, 3)
     end_drawing()
 
