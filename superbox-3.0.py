@@ -45,7 +45,7 @@ class Stone(Cell):
         )
         self.vx = 0
         self.vy = 0
-        self.gravity = -1
+        self.gravity = 0
         self.mass = 500
         self.bounce = 0.005
 
@@ -162,7 +162,6 @@ while not window_should_close():
                 cell.vy = - fy * ratio / cell.mass * cell.bounce
                 world[dy][dx].vx  += fx * (1 - ratio) / world[dy][dx].mass
                 world[dy][dx].vy += fy * (1 - ratio) / world[dy][dx].mass
-                #print(ratio)
 
             #if cell.vx > 1: cell.vx = 1
             #if cell.vy > 1: cell.vy = 1
