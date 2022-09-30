@@ -14,8 +14,8 @@ class Plastic:
         self.vy = 0
         self.gravity = 1
         self.mass = .9
-        self.absorption = 0
-        self.viscosity = 0.5
+        self.bounce = 1
+        self.liquidity = 0.5
 
 class Sand:
     def __init__(self):
@@ -29,8 +29,8 @@ class Sand:
         self.vy = 0
         self.gravity = 1
         self.mass = 1
-        self.absorption = 0.2
-        self.viscosity = 0.3
+        self.bounce = 0.2
+        self.liquidity = 0.3
 
 class Stone:
     def __init__(self):
@@ -45,8 +45,8 @@ class Stone:
         self.vy = 0
         self.gravity = 0
         self.mass = 500
-        self.absorption = 0.3
-        self.viscosity = 0.6
+        self.bounce = 0.3
+        self.liquidity = 0.6
 
 class Water:
     def __init__(self):
@@ -60,8 +60,8 @@ class Water:
         self.vy = 0
         self.gravity = 1
         self.mass = 0.5
-        self.absorption = 0.01
-        self.viscosity = 0.8
+        self.bounce = 0.05
+        self.liquidity = 0.8
 
 class Smoke:
     def __init__(self):
@@ -76,8 +76,8 @@ class Smoke:
         self.vy = 0
         self.gravity = -1
         self.mass = 0.4
-        self.absorption = 0.001
-        self.viscosity = .8
+        self.bounce = 0.05
+        self.liquidity = .8
 
 cell_names = ['plastic', 'stone', 'sand', 'water', 'smoke']
 cell_classes = [Plastic, Stone, Sand, Water, Smoke]
@@ -101,8 +101,8 @@ def attempt_swap(x, y, dx, dy):
 
 width = 800
 height = 600
-world_width = 200
-world_height = 200
+world_width = 400
+world_height = 400
 color_mode = 0
 wrap_y = True # <--------------- fix thisss
 wrap_x = True
@@ -117,11 +117,11 @@ world = []
 for y in range(world_height):
     world.append([])
     for x in range(world_width):
-        if (x*.7 - 60)**2 + (y*1.5 - 180)**2 + sin(x*0.7)*80 <= 20**2: # i spent way too much time on this bs
+        if (x*.7 - 50)**2 + (y*1.5 - 50)**2 + sin(x*0.7)*80 <= 20**2: # i spent way too much time on this bs
             world[y].append(Stone())
         else:
             world[y].append(None)
-camera = Camera(0, 0, 5)
+camera = Camera(0, 500, 5)
 
 init_window( width, height, "superbox 3.0")
 set_target_fps(50)
@@ -158,8 +158,14 @@ while not window_should_close():
         if x < world_width and x >= 0 and y < world_height and y >= 0:
             if is_key_down(KEY_LEFT_CONTROL):
                 world[y][x] = None
+                world[y][x+1] = None
+                world[y+1][x] = None
+                world[y+1][x+1] = None
             else:
                 world[y][x] = cell_classes[selected]()
+                world[y][x+1] = cell_classes[selected]()
+                world[y+1][x] = cell_classes[selected]()
+                world[y+1][x+1] = cell_classes[selected]()
 
     # ---- simulation ----
     total_energy = 0
@@ -205,15 +211,15 @@ while not window_should_close():
                 # particles in the real world do not colide perfectly aligned
                 # i simulate this by transfering a little x energy to y, and some y to x
                 # it also acts as a viscosity parameter since increasing it makes the particle more slippery
-                rx = random()*cell.viscosity-cell.viscosity/2 # TODO: fix the error in logic here
-                ry = random()*cell.viscosity-cell.viscosity/2
+                rx = random()*cell.liquidity-cell.liquidity/2 # TODO: fix the error in logic here
+                ry = random()*cell.liquidity-cell.liquidity/2
                 fx += rx
                 fy -= rx
                 fx += ry
                 fy -= ry
-                # absorption is how much energy is wasted
-                cell.vx = - fx * ratio / cell.mass * cell.absorption * world[dy][dx].absorption
-                cell.vy = - fy * ratio / cell.mass * cell.absorption * world[dy][dx].absorption
+                # bounce is how much energy is wasted
+                cell.vx = - fx * ratio / cell.mass * cell.bounce * world[dy][dx].bounce
+                cell.vy = - fy * ratio / cell.mass * cell.bounce * world[dy][dx].bounce
                 world[dy][dx].vx += fx * (1 - ratio) / world[dy][dx].mass
                 world[dy][dx].vy += fy * (1 - ratio) / world[dy][dx].mass
             
