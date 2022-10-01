@@ -21,11 +21,9 @@ class World:
         for y in range(self.height):
             world.append([])
             for x in range(self.width):
-                    if random() < .9:
-                        world[y].append(None)
-                    else:
-                        world[y].append(Stone())
+                    world[y].append(None)
         self.world = world
+
     def render_texture(self, render_texture, color_mode):
         begin_texture_mode(render_texture)
         clear_background(Color(0, 0, 0, 0))  
@@ -80,7 +78,7 @@ class World:
                     cell.vx += self.wind / cell.mass
 
                 # delta from velocity
-                dx, dy = 0, 0
+                dx, dy = 0, 0 # velocity in this simulation is just the odds of praticle moving, one step at a time.
                 if abs(cell.vx) > random(): dx = 1
                 if cell.vx < 0: dx *= -1
                 if abs(cell.vy) > random(): dy = 1
@@ -121,15 +119,14 @@ class CAM:
         self.y = y
         self.z = z
         self.scroll_speed = .1
+        self.vz = 0
 
-# TODO: FIX THE CAMERA
-# TODO: separate the sandbox and the engine
-# like Sand Stone and water constructors and inputs are parts of the sandbox, but rendering and simulating is engine work.
-# meaning i would have to make many things into functions
 # TODO: fire. #simulated through temperature.
 # TODO: explosives >:]
 # TODO: magnetism :O
 
 # DONE: smoke.
 # DONE: better data visualizing color scheemes
-    
+# DONE: separate the sandbox and the engine
+# DONE: FIX THE CAMERA
+
