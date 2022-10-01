@@ -5,13 +5,14 @@ from time import *
 from superEngine import *
 from materials import *
 
-material_names = ['plastic', 'stone', 'sky stone', 'sand', 'water', 'smoke']
-material_classes = [Plastic, Stone, Sky_Stone, Sand, Water, Smoke]
+material_classes = [Fire, Plastic, Stone, Sky_Stone, Sand, Water, Smoke, Wood, Ash]
+material_names = [i.__name__ for i in material_classes]
+material_colors = [i().color for i in material_classes]
 
 width = 800
 height = 600
 color_mode = 0
-selected = 1
+selected = 0
 cursor_size = 5
 
 world = World(300, 300)
@@ -47,11 +48,13 @@ while not window_should_close():
     
     if is_key_pressed(KEY_TAB):
         color_mode += 1
-        color_mode %= 3
+        color_mode %= 4
     if is_key_pressed(KEY_SPACE):
-        if is_key_down(KEY_SPACE): selected -= 2
+        if is_key_down(KEY_LEFT_SHIFT): selected -= 2
         selected += 1
         selected %= len(material_names)
+        material_colors = [i().color for i in material_classes]
+
 
     #   interaction
     if is_mouse_button_down(MOUSE_BUTTON_RIGHT):
@@ -92,7 +95,9 @@ while not window_should_close():
     # HUD
     draw_rectangle(int((world.wind/world.max_wind/2+0.5)*.95*width), 5, 2, 20, WHITE)
     draw_rectangle(int(width/2-1), 3, 2, 4, WHITE)
-    draw_circle(get_mouse_x(), get_mouse_y(), int(cursor_size * camera.z), material_classes[selected]().color)
+    draw_circle(get_mouse_x(), get_mouse_y(), int(cursor_size * camera.z), material_colors[selected])
+    if 50*get_frame_time() > 1.5:
+        draw_fps(5, 30)
 
     draw_text(material_names[selected], 5, 5, 28, WHITE)
     end_drawing()

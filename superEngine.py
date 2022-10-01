@@ -18,12 +18,7 @@ class World:
         self.wind_variable = 0.0002
         self.wind_normalizer = .99
         self.gravity = 0.06
-        world = []
-        for y in range(self.height):
-            world.append([])
-            for x in range(self.width):
-                    world[y].append(None)
-        self.world = world
+        self.world = [[None for x in range(self.width)] for y in range(self.height)]
 
     def render_texture(self, render_texture, color_mode):
         begin_texture_mode(render_texture)
@@ -58,6 +53,8 @@ class World:
         return Success
 
     def update(self):
+        #   world updates 🌍
+        
         self.wind += (random()-.5)*self.wind_variable
         if self.wind > self.max_wind: self.wind = self.max_wind
         if self.wind < -self.max_wind: self.wind = -self.max_wind
@@ -71,13 +68,13 @@ class World:
             for x, pixel in enumerate(self.world[y]):
                 if pixel is None: continue
 
-                #gravity and wind
-                if pixel.vy > -.5:
+                if abs(pixel.vy) < .5:
                     pixel.vy -= self.gravity * pixel.gravity_effect 
                 if self.world[y][(x+wind_side)%(self.width-1)] is None:
                     pixel.vx += self.wind / pixel.mass
 
-                # delta from velocity
+                #   physics ⛓️
+                
                 dx, dy = 0, 0 # velocity in this simulation is just the odds of praticle moving, one step at a time.
                 if abs(pixel.vx) > random(): dx = 1
                 if pixel.vx < 0: dx *= -1
@@ -115,8 +112,18 @@ class World:
                 if pixel.vx > self.max_v: pixel.vx = self.max_v
                 if pixel.vy > self.max_v: pixel.vy = self.max_v
                 if pixel.decay > random() * 100:
-                    self.world[y][x] = None
+                    if pixel.decay_to is not None: self.world[y][x] = pixel.decay_to()
+                    else: self.world[y][x] = None
+
                 total_energy += (pixel.vx + pixel.vy) * pixel.mass
+            
+                #   chimestry 🧪
+                if state == Neighbor:
+                    neighbor = self.world[dy][dx]
+                    for i, reaction in enumerate(pixel.reacts_as):
+                        if reaction in neighbor.reacts_to:
+                            if neighbor.reaction_odds[i] > random():
+                                self.world[dy][dx] = neighbor.reaction_results[i]()                    
         return total_energy
 
 class CAM:
@@ -138,4 +145,3 @@ class CAM:
 # DONE: separate the sandbox and the engine
 # DONE: FIX THE CAMERA
 # DONE: better placing of pixels with the mouse
-
