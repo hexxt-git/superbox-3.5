@@ -111,19 +111,25 @@ class World:
                     if neighbor.vy > self.max_v: neighbor.vy = self.max_v
                 if pixel.vx > self.max_v: pixel.vx = self.max_v
                 if pixel.vy > self.max_v: pixel.vy = self.max_v
-                if pixel.decay > random() * 100:
-                    if pixel.decay_to is not None: self.world[y][x] = pixel.decay_to()
-                    else: self.world[y][x] = None
-
                 total_energy += (pixel.vx + pixel.vy) * pixel.mass
             
                 #   chimestry 🧪
+
+                for i in range(len(pixel.decay)):
+                    if pixel.decay[i] > random() * 100:
+                        if pixel.decay_to[i] is not None: self.world[y][x] = pixel.decay_to[i]()
+                        else: self.world[y][x] = None
+
                 if state == Neighbor:
                     neighbor = self.world[dy][dx]
-                    for i, reaction in enumerate(pixel.reacts_as):
+                    for reaction in pixel.reacts_as:
                         if reaction in neighbor.reacts_to:
-                            if neighbor.reaction_odds[i] > random():
-                                self.world[dy][dx] = neighbor.reaction_results[i]()                    
+                            reaction_index = neighbor.reacts_to.index(reaction)
+                            for i in range(len(neighbor.reaction_results[reaction_index])):
+                                if neighbor.reaction_odds[reaction_index][i] > random():
+                                    if neighbor.reaction_results[reaction_index][i] is not None:
+                                        self.world[dy][dx] = neighbor.reaction_results[reaction_index][i]()                    
+                                    else: self.world[dy][dx] = None
         return total_energy
 
 class CAM:
@@ -134,10 +140,8 @@ class CAM:
         self.scroll_speed = .08
         self.vz = 0
 
-# TODO: fire. #simulated through temperature.
 # TODO: explosives >:]
 # TODO: magnetism :O
-# TODO: chimestry
 # TODO: procedually generated islands
 
 # DONE: smoke.
@@ -145,3 +149,5 @@ class CAM:
 # DONE: separate the sandbox and the engine
 # DONE: FIX THE CAMERA
 # DONE: better placing of pixels with the mouse
+# DONE: fire.
+# DONE: chimestry

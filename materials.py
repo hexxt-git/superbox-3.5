@@ -3,6 +3,9 @@ from pyray import *
 
 # reactions
 BURN = 0
+EXTINGWISH = 1
+MELT = 2
+WEAK_MELT= 3
 
 class Plastic:
     def __init__(self):
@@ -18,12 +21,12 @@ class Plastic:
         self.mass = .9
         self.bounce = .8
         self.liquidity = .5
-        self.decay = 0
-        self.decay_to = None
+        self.decay = [0]
+        self.decay_to = [None]
         self.reacts_as = []
         self.reacts_to = []
-        self.reaction_odds = []
         self.reaction_results = []
+        self.reaction_odds = []
 
 class Sand:
     def __init__(self):
@@ -39,12 +42,12 @@ class Sand:
         self.mass = 1
         self.bounce = .2
         self.liquidity = .1
-        self.decay = 0
-        self.decay_to = None
+        self.decay = [0]
+        self.decay_to = [None]
         self.reacts_as = []
         self.reacts_to = []
-        self.reaction_odds = []
         self.reaction_results = []
+        self.reaction_odds = []
 
 class Stone:
     def __init__(self):
@@ -61,12 +64,12 @@ class Stone:
         self.mass = 100
         self.bounce = .3
         self.liquidity = .1
-        self.decay = 0
-        self.decay_to = None
+        self.decay = [0]
+        self.decay_to = [None]
         self.reacts_as = []
-        self.reacts_to = []
-        self.reaction_odds = []
-        self.reaction_results = []
+        self.reacts_to = [MELT, WEAK_MELT]
+        self.reaction_results = [[Lava],[Lava]]
+        self.reaction_odds = [[.1], [0.05]]
 
 class Sky_Stone:
     def __init__(self):
@@ -82,14 +85,14 @@ class Sky_Stone:
             self.vy = 0
             self.gravity_effect = 0
             self.mass = 100000000
-            self.bounce = 1
+            self.bounce = .5
             self.liquidity = 0
-            self.decay = 0
-            self.decay_to = None
+            self.decay = [0]
+            self.decay_to = [None]
             self.reacts_as = []
             self.reacts_to = []
-            self.reaction_odds = []
             self.reaction_results = []
+            self.reaction_odds = []
 
 class Water:
     def __init__(self):
@@ -105,12 +108,12 @@ class Water:
         self.mass = .5
         self.bounce = .8
         self.liquidity = 1
-        self.decay = 0
-        self.decay_to = None
-        self.reacts_as = []
-        self.reacts_to = [BURN]
-        self.reaction_odds = [.1]
-        self.reaction_results = [Smoke]
+        self.decay = [0]
+        self.decay_to = [None]
+        self.reacts_as = [EXTINGWISH]
+        self.reacts_to = []
+        self.reaction_results = []
+        self.reaction_odds = []
 
 class Fire:
     def __init__(self):
@@ -140,12 +143,12 @@ class Fire:
         self.mass = .1
         self.bounce = .6
         self.liquidity = .6
-        self.decay = .2
-        self.decay_to = Smoke
-        self.reacts_as = [BURN]
-        self.reacts_to = []
-        self.reaction_odds = []
-        self.reaction_results = []
+        self.decay = [.4, .1]
+        self.decay_to = [Smoke, Ash]
+        self.reacts_as = [BURN, WEAK_MELT]
+        self.reacts_to = [EXTINGWISH]
+        self.reaction_results = [[Smoke, None]]
+        self.reaction_odds = [[.2, .05]]
 
 class Smoke:
     def __init__(self):
@@ -161,13 +164,13 @@ class Smoke:
         self.gravity_effect = -.6
         self.mass = .3
         self.bounce = .05
-        self.liquidity = .8
-        self.decay = .1
-        self.decay_to = Ash
+        self.liquidity = .9
+        self.decay = [.1]
+        self.decay_to = [None]
         self.reacts_as = []
         self.reacts_to = []
-        self.reaction_odds = []
         self.reaction_results = []
+        self.reaction_odds = []
 
 class Wood:
     def __init__(self):
@@ -182,12 +185,12 @@ class Wood:
         self.mass = 30
         self.bounce = .4
         self.liquidity = 0
-        self.decay = 0
-        self.decay_to = None
+        self.decay = [0]
+        self.decay_to = [None]
         self.reacts_as = []
         self.reacts_to = [BURN]
-        self.reaction_odds = [.3]
-        self.reaction_results = [Fire]
+        self.reaction_results = [[Fire, Ash]]
+        self.reaction_odds = [[.5, .3]]
 
 class Ash   :
     def __init__(self):
@@ -205,9 +208,30 @@ class Ash   :
         self.mass = 0.3
         self.bounce = .3
         self.liquidity = .3
-        self.decay = 0.005
-        self.decay_to = None
+        self.decay = [0]   
+        self.decay_to = [None]
         self.reacts_as = []
         self.reacts_to = []
-        self.reaction_odds = []
         self.reaction_results = []
+        self.reaction_odds = []
+
+class Lava:
+    def __init__(self):
+        self.color = Color(
+            randint(230, 240),
+            randint(80, 90),
+            randint(30, 40),
+            255
+        )
+        self.vx = 0
+        self.vy = 0
+        self.gravity_effect = 1
+        self.mass = .7
+        self.bounce = .7
+        self.liquidity = .9
+        self.decay = [0]
+        self.decay_to = [None]
+        self.reacts_as = [BURN, MELT]
+        self.reacts_to = [EXTINGWISH]
+        self.reaction_results = [[Stone, Smoke]]
+        self.reaction_odds = [[0.6, 0.05]]
