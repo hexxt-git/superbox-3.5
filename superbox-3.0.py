@@ -5,14 +5,14 @@ from time import *
 from superEngine import *
 from materials import *
 
-cell_names = ['plastic', 'stone', 'sand', 'water', 'smoke']
-cell_classes = [Plastic, Stone, Sand, Water, Smoke]
-selected = 1
+material_names = ['plastic', 'stone', 'sky stone', 'sand', 'water', 'smoke']
+material_classes = [Plastic, Stone, Sky_Stone, Sand, Water, Smoke]
 
 width = 800
 height = 600
 color_mode = 0
-
+selected = 1
+cursor_size = 5
 
 world = World(300, 300)
 camera = CAM(0, 0, 5)
@@ -20,7 +20,7 @@ camera = CAM(0, 0, 5)
 init_window( width, height, "superbox 3.0")
 render_texture = load_render_texture(world.width, world.height)
 set_target_fps(50)
-#hide_cursor()
+hide_cursor()
 while not window_should_close():
 
     x_scale = int(world.width * camera.z)
@@ -31,42 +31,45 @@ while not window_should_close():
     if is_mouse_button_down(MOUSE_BUTTON_LEFT):
         camera.x += get_mouse_delta().x
         camera.y += get_mouse_delta().y
-    if get_mouse_wheel_move() > 0:
-        if camera.z * (1 + camera.scroll_speed) <= 50:
-            camera.vz += camera.scroll_speed
-    if get_mouse_wheel_move() < 0:
-        if camera.z * (1 - camera.scroll_speed) > 1:
-            camera.vz -= camera.scroll_speed
-    camera.z *= 1 + camera.vz
-    camera.x *= 1 + camera.vz
-    camera.y *= 1 + camera.vz
-    camera.vz *= .8
+    if not is_key_down(KEY_LEFT_SHIFT):
+        if get_mouse_wheel_move() > 0: camera.vz += camera.scroll_speed
+        if get_mouse_wheel_move() < 0: camera.vz -= camera.scroll_speed
+    else:
+        if get_mouse_wheel_move() > 0 and cursor_size < 8: cursor_size += 1
+        if get_mouse_wheel_move() < 0 and cursor_size > 1: cursor_size -= 1
+    if camera.z * (1 + camera.vz) > 1:
+        camera.z *= 1 + camera.vz
+        camera.x *= 1 + camera.vz
+        camera.y *= 1 + camera.vz
+    else: camera.vx = 0
+    camera.vz *= .75
     
     
     if is_key_pressed(KEY_TAB):
         color_mode += 1
         color_mode %= 3
     if is_key_pressed(KEY_SPACE):
+        if is_key_down(KEY_SPACE): selected -= 2
         selected += 1
-        selected %= len(cell_names)
+        selected %= len(material_names)
 
     #   interaction
     if is_mouse_button_down(MOUSE_BUTTON_RIGHT):
-        x = int((get_mouse_x() - camera.x) / camera.z)
-        y = int((- get_mouse_y() + camera.y) / camera.z)
-        y %= world.height
-        x %= world.width
-        if x+1 < world.width and x >= 0 and y+1 < world.height and y >= 0:
-            if is_key_down(KEY_LEFT_CONTROL):
-                world.world[y][x] = None
-                world.world[y][x+1] = None
-                world.world[y+1][x] = None
-                world.world[y+1][x+1] = None
-            else:
-                world.world[y][x] = cell_classes[selected]()
-                world.world[y][x+1] = cell_classes[selected]()
-                world.world[y+1][x] = cell_classes[selected]()
-                world.world[y+1][x+1] = cell_classes[selected]()
+        x = int((get_mouse_x() - camera.x) / camera.z) % world.width
+        y = int((- get_mouse_y() + camera.y) / camera.z) % world.height
+        for y0 in range(int(-cursor_size-1), int(cursor_size+1)):
+            for x0 in range(int(-cursor_size-1), int(cursor_size+1)):
+                if y0**2 + x0**2 <= cursor_size**2:
+                    x1 = (x0 + x) % world.width
+                    y1 = (y0 + y) % world.height
+                    if x1 < world.width and x1 >= 0 and x1 < world.height and x1 >= 0:
+                        if is_key_down(KEY_LEFT_CONTROL):
+                            world.world[y1][x1] = None
+                        else:
+                            world.world[y1][x1] = material_classes[selected]()
+                            if is_key_down(KEY_LEFT_SHIFT):
+                                world.world[y1][x1].vx = random()*1.8-.9
+                                world.world[y1][x1].vy = random()*1.8-.9
 
     # ---- simulation ----
     world.update()
@@ -85,13 +88,13 @@ while not window_should_close():
                 x*x_scale + camera.x%x_scale,
                 y*y_scale + camera.y%y_scale
             ), 0, camera.z, WHITE)
-            #draw_text(f'{int(x)}, {y}', int(x*x_scale +camera.x%x_scale), int(y*y_scale +camera.y%y_scale), int(camera.z * 5), WHITE)
+            
     # HUD
     draw_rectangle(int((world.wind/world.max_wind/2+0.5)*.95*width), 5, 2, 20, WHITE)
     draw_rectangle(int(width/2-1), 3, 2, 4, WHITE)
+    draw_circle(get_mouse_x(), get_mouse_y(), int(cursor_size * camera.z), material_classes[selected]().color)
 
-    draw_fps(5, 5)
-    draw_text(cell_names[selected] + '  // press space to change material', 5, 25, 23, DARKGREEN)
+    draw_text(material_names[selected], 5, 5, 28, WHITE)
     end_drawing()
 
 close_window()
