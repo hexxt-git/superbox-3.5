@@ -23,10 +23,6 @@ render_texture = load_render_texture(world.width, world.height)
 set_target_fps(50)
 hide_cursor()
 while not window_should_close():
-
-    x_scale = int(world.width * camera.z)
-    y_scale = int(world.height * camera.z)
-
     # ---- input ----
     #   navigation
     if is_mouse_button_down(MOUSE_BUTTON_LEFT):
@@ -83,14 +79,7 @@ while not window_should_close():
     draw_rectangle_gradient_v(0, 0, width, height, Color(153, 218, 255, 255), Color(84, 193, 255, 255))
 
     render_texture = world.render_texture(render_texture, color_mode)
-
-    for y in range(-2, int(height/y_scale+1)): # im so done with this
-        for x in range(-2, int(width/x_scale+1)):
-            draw_texture_ex(render_texture.texture,
-            Vector2(
-                x*x_scale + camera.x%x_scale,
-                y*y_scale + camera.y%y_scale
-            ), 0, camera.z, WHITE)
+    world.render(render_texture, camera, width, height)
             
     # HUD
     draw_rectangle(int((world.wind/world.max_wind/2+0.5)*.95*width), 5, 2, 20, WHITE)

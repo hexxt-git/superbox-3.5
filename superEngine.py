@@ -44,6 +44,18 @@ class World:
                 draw_pixel(x, y, c)
         end_texture_mode()
         return render_texture
+    
+    def render(self, render_texture, camera, width, height):
+        x_scale = int(self.width * camera.z)
+        y_scale = int(self.height * camera.z)
+        for y in range(-2, int(height/y_scale+1)):
+            for x in range(-2, int(width/x_scale+1)):
+                draw_texture_ex(render_texture.texture,
+                Vector2(
+                    x*x_scale + camera.x%x_scale,
+                    y*y_scale + camera.y%y_scale
+                ), 0, camera.z, WHITE)
+    
     def attempt_swap(self, x, y, dx, dy):
         if x == dx and y == dy: return Fail
         if self.world[dy][dx] is not None: return Neighbor

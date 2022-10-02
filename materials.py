@@ -229,8 +229,8 @@ class Lava:
         self.mass = .7
         self.bounce = .7
         self.liquidity = .9
-        self.decay = [0]
-        self.decay_to = [None]
+        self.decay = [0.5]
+        self.decay_to = [Stone]
         self.reacts_as = [BURN, MELT]
         self.reacts_to = [EXTINGWISH]
         self.reaction_results = [[Stone, Smoke]]
