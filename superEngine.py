@@ -1,8 +1,10 @@
 from math import *
 from random import *
 from pyray import *
+import inspect
 from time import *
 from materials import *
+
 
 Fail = 0
 Success = 1
@@ -40,6 +42,11 @@ class World:
                     g = min(int(abs(pixel.vy) ** .4 / self.max_v * 250), 250)
                     b = min(r, g, 70)
                     c = Color(r, g, b, 255)
+                if color_mode == 3: # moister mode
+                    if hasattr(pixel, 'moister'):
+                        m = int(min(pixel.moister * 255, 255))
+                        c = Color(m, m, m, 255)
+                    else: c = BLACK
 
                 draw_pixel(x, y, c)
         end_texture_mode()
@@ -126,9 +133,11 @@ class World:
                 total_energy += (pixel.vx + pixel.vy) * pixel.mass
             
                 #   chimestry 🧪
+                for i in range(len(pixel.current_decay_chance)):
+                    pixel.current_decay_chance[i] += pixel.decay_chance_growth[i]
 
-                for i in range(len(pixel.decay)):
-                    if pixel.decay[i] > random() * 100:
+                for i in range(len(pixel.current_decay_chance)):
+                    if pixel.current_decay_chance[i] > random() * 100:
                         if pixel.decay_to[i] is not None: self.world[y][x] = pixel.decay_to[i]()
                         else: self.world[y][x] = None
 
@@ -139,9 +148,13 @@ class World:
                             reaction_index = neighbor.reacts_to.index(reaction)
                             for i in range(len(neighbor.reaction_results[reaction_index])):
                                 if neighbor.reaction_odds[reaction_index][i] > random():
-                                    if neighbor.reaction_results[reaction_index][i] is not None:
-                                        self.world[dy][dx] = neighbor.reaction_results[reaction_index][i]()                    
-                                    else: self.world[dy][dx] = None
+                                    if neighbor.reaction_results[reaction_index][i] is None:
+                                        self.world[dy][dx] = None
+                                    elif inspect.isclass(neighbor.reaction_results[reaction_index][i]): 
+                                        self.world[dy][dx] = neighbor.reaction_results[reaction_index][i]()
+                                    else:
+                                        getattr(neighbor, neighbor.reaction_results[reaction_index][i])()
+                                    pixel.reaction_feedback(reaction_index)
         return total_energy
 
 class CAM:
@@ -152,8 +165,11 @@ class CAM:
         self.scroll_speed = .08
         self.vz = 0
 
+# TODO: advanced chimestry
+# TODO: make an attempt to optimize the code
 # TODO: explosives >:]
 # TODO: magnetism :O
+# TODO: improve the camera
 # TODO: procedually generated islands
 
 # DONE: smoke.

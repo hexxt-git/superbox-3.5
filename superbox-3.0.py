@@ -5,7 +5,7 @@ from time import *
 from superEngine import *
 from materials import *
 
-material_classes = [Fire, Plastic, Stone, Sky_Stone, Sand, Water, Smoke, Wood, Ash, Lava ]
+material_classes = [Fire, Plastic, Stone, Sky_Stone, Sand, Water, Smoke, Wood, Ash, Lava, Dirt]
 material_names = [i.__name__ for i in material_classes]
 material_colors = [i().color for i in material_classes]
 
@@ -84,7 +84,7 @@ while not window_should_close():
     # HUD
     draw_rectangle(int((world.wind/world.max_wind/2+0.5)*.95*width), 5, 2, 20, WHITE)
     draw_rectangle(int(width/2-1), 3, 2, 4, WHITE)
-    draw_circle(get_mouse_x(), get_mouse_y(), int(cursor_size * camera.z), material_colors[selected])
+    if is_cursor_on_screen(): draw_circle(get_mouse_x(), get_mouse_y(), int(cursor_size * camera.z), material_colors[selected])
     if 50*get_frame_time() > 1.5:
         draw_fps(5, 30)
 
