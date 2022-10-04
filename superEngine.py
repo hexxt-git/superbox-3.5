@@ -44,7 +44,7 @@ class World:
                     c = Color(r, g, b, 255)
                 if color_mode == 3: # moister mode
                     if hasattr(pixel, 'moister'):
-                        m = int(min(pixel.moister * 255, 255))
+                        m = int(max(min(pixel.moister / 5 * 255, 255), 0))
                         c = Color(m, m, m, 255)
                     else: c = BLACK
 
@@ -138,7 +138,10 @@ class World:
 
                 for i in range(len(pixel.current_decay_chance)):
                     if pixel.current_decay_chance[i] > random() * 100:
-                        if pixel.decay_to[i] is not None: self.world[y][x] = pixel.decay_to[i]()
+                        if pixel.decay_to[i] is not None:
+                            self.world[y][x] = pixel.decay_to[i]()
+                            self.world[y][x].vx = (pixel.vx * pixel.mass) / self.world[y][x].mass
+                            self.world[y][x].vy = (pixel.vy * pixel.mass) / self.world[y][x].mass
                         else: self.world[y][x] = None
 
                 if state == Neighbor:
@@ -152,9 +155,11 @@ class World:
                                         self.world[dy][dx] = None
                                     elif inspect.isclass(neighbor.reaction_results[reaction_index][i]): 
                                         self.world[dy][dx] = neighbor.reaction_results[reaction_index][i]()
+                                        self.world[dy][dx].vx = (neighbor.vx * neighbor.mass) / self.world[dy][dx].mass
+                                        self.world[dy][dx].vy = (neighbor.vy * neighbor.mass) / self.world[dy][dx].mass
                                     else:
                                         getattr(neighbor, neighbor.reaction_results[reaction_index][i])()
-                                    pixel.reaction_feedback(reaction_index)
+                                    pixel.reaction_feedback(reaction)
         return total_energy
 
 class CAM:
@@ -165,7 +170,6 @@ class CAM:
         self.scroll_speed = .08
         self.vz = 0
 
-# TODO: advanced chimestry
 # TODO: make an attempt to optimize the code
 # TODO: explosives >:]
 # TODO: magnetism :O
@@ -179,3 +183,4 @@ class CAM:
 # DONE: better placing of pixels with the mouse
 # DONE: fire.
 # DONE: chimestry
+# DONE: advanced chimestry

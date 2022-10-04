@@ -40,11 +40,12 @@ while not window_should_close():
         camera.y *= 1 + camera.vz
     else: camera.vx = 0
     camera.vz *= .75
-    
-    
+        
     if is_key_pressed(KEY_TAB):
+        if is_key_down(KEY_LEFT_SHIFT): color_mode -= 2
         color_mode += 1
         color_mode %= 4
+        if color_mode < 0: color_mode = 3
     if is_key_pressed(KEY_SPACE):
         if is_key_down(KEY_LEFT_SHIFT): selected -= 2
         selected += 1
