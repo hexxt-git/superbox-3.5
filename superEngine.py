@@ -151,6 +151,7 @@ class World:
                             reaction_index = neighbor.reacts_to.index(reaction)
                             for i in range(len(neighbor.reaction_results[reaction_index])):
                                 if neighbor.reaction_odds[reaction_index][i] > random():
+                                    pixel.reaction_feedback(reaction)
                                     if neighbor.reaction_results[reaction_index][i] is None:
                                         self.world[dy][dx] = None
                                     elif inspect.isclass(neighbor.reaction_results[reaction_index][i]): 
@@ -159,7 +160,6 @@ class World:
                                         self.world[dy][dx].vy = (neighbor.vy * neighbor.mass) / self.world[dy][dx].mass
                                     else:
                                         getattr(neighbor, neighbor.reaction_results[reaction_index][i])()
-                                    pixel.reaction_feedback(reaction)
         return total_energy
 
 class CAM:

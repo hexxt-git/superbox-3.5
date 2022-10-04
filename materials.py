@@ -72,7 +72,7 @@ class Dirt:
         self.gravity_effect = 1
         self.mass = 1.5
         self.bounce = .15
-        self.liquidity = .2
+        self.liquidity = .3
         self.moister = 0
         self.current_decay_chance = [0]
         self.decay_chance_growth = [0]
@@ -82,17 +82,18 @@ class Dirt:
         self.reaction_results = [['moisterize']]
         self.reaction_odds = [[0.5]]
     def moisterize(self):
-        self.moister += 0.2
+        self.moister += 0.5
         self.update()
-    def reaction_feedback(self, i):
-        self.moister -= 1
-        self.update()
+    def reaction_feedback(self, reaction):
+        if reaction == MOISTER:
+            self.moister -= 1
+            self.update()
     def update(self):
-        if self.moister > 1.5:
+        if self.moister >= 1:
             self.reacts_as = [DIRT, MOISTER]
         else:
             self.reacts_as = []
-        if self.moister < 5:
+        if self.moister <= 10:
             self.reacts_to = [MOISTER]
             self.reaction_results = [['moisterize']]
             self.reaction_odds = [[0.5]]
@@ -100,6 +101,33 @@ class Dirt:
             self.reacts_to = []
             self.reaction_results = []
             self.reaction_odds = []
+
+class Water:
+    def __init__(self):
+        self.color = Color(
+            randint(65, 70),
+            randint(100, 110),
+            randint(190, 200),
+            200
+        )
+        self.vx = 0
+        self.vy = 0
+        self.gravity_effect = 1
+        self.mass = .5
+        self.bounce = .7
+        self.liquidity = 1
+        self.moister = 4
+        self.current_decay_chance = [0]
+        self.decay_chance_growth = [0]
+        self.decay_to = [None]
+        self.reacts_as = [EXTINGWISH, DIRT, MOISTER]
+        self.reacts_to = []
+        self.reaction_results = []
+        self.reaction_odds = []
+    def reaction_feedback(self, reaction):
+        if reaction == DIRT:
+            self.moister -= 1
+        if self.moister <= 0: self.current_decay_chance = [1]
 
 class Stone:
     def __init__(self):
@@ -151,33 +179,6 @@ class Sky_Stone:
             self.reaction_odds = []
     def reaction_feedback(self, i):
         pass
-
-class Water:
-    def __init__(self):
-        self.color = Color(
-            randint(65, 70),
-            randint(100, 110),
-            randint(190, 200),
-            200
-        )
-        self.vx = 0
-        self.vy = 0
-        self.gravity_effect = 1
-        self.mass = .5
-        self.bounce = .8
-        self.liquidity = 1
-        self.moister = 5
-        self.current_decay_chance = [0]
-        self.decay_chance_growth = [0]
-        self.decay_to = [None]
-        self.reacts_as = [EXTINGWISH, DIRT, MOISTER]
-        self.reacts_to = []
-        self.reaction_results = []
-        self.reaction_odds = []
-    def reaction_feedback(self, reaction):
-        if reaction == DIRT:
-            self.moister -= 1
-            if self.moister <= 0: self.current_decay_chance = [1]
 
 class Fire:
     def __init__(self):
