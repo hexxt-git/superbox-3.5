@@ -14,7 +14,7 @@ class World:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.max_v = 2
+        self.max_v = 5
         self.wind = 0
         self.max_wind = 0.005
         self.wind_variable = 0.0002
@@ -35,7 +35,7 @@ class World:
                 if color_mode == 0:  # light mode
                     c = pixel.color
                 if color_mode == 1:  # energy mode
-                    h = int(min(sqrt(pixel.vx**2 + pixel.vy**2) * pixel.mass * 150, 66))  
+                    h = int((180 - sqrt(pixel.vx**2 + pixel.vy**2) * pixel.mass * 100) % 360)  
                     c = color_from_hsv(h, 95, 85)
                 if color_mode == 2:  # velocity mode
                     r = min(int(abs(pixel.vx) ** .4 / self.max_v * 250), 250)
@@ -116,10 +116,11 @@ class World:
                     # particles in the real world do not colide perfectly aligned
                     # i simulate this by transfering a little x energy to y, and some y to x
                     # it also acts as a viscosity parameter since increasing it makes the particle more slippery
-                    lost_x = force_x * (random()*2-1)*pixel.liquidity
-                    lost_y = force_y * (random()*2-1)*pixel.liquidity
-                    force_x -= lost_x + lost_y
-                    force_y -= lost_y + lost_x
+                    if  random() < .5:
+                        lost_x = force_x * (random()*2-1)*pixel.liquidity
+                        lost_y = force_y * (random()*2-1)*pixel.liquidity
+                        force_x -= lost_x + lost_y
+                        force_y -= lost_y + lost_x
 
                     # bounce is how much energy is wasted
                     pixel.vx = - force_x * ratio / pixel.mass * pixel.bounce * neighbor.bounce
@@ -160,6 +161,36 @@ class World:
                                         self.world[dy][dx].vy = (neighbor.vy * neighbor.mass) / self.world[dy][dx].mass
                                     else:
                                         getattr(neighbor, neighbor.reaction_results[reaction_index][i])()
+                
+                # explosions 💥
+                if hasattr(pixel, 'explosive_power'):
+                    if random() < 0.01:
+                        self.world[y][x] = None
+                        for ey in range(y-8, y+8):
+                            ey %= self.height
+                            for ex in range(x-8, x+8):
+                                ex %= self.width
+                                if self.world[ey][ex] is not None:
+                                    if ey <= y:
+                                        self.world[ey][ex].vy -= pixel.explosive_power / self.world[ey][ex].mass
+                                    else:
+                                        self.world[ey][ex].vy += pixel.explosive_power / self.world[ey][ex].mass
+                                    if ex <= x:
+                                        self.world[ey][ex].vx -= pixel.explosive_power / self.world[ey][ex].mass
+                                    else:
+                                        self.world[ey][ex].vx += pixel.explosive_power / self.world[ey][ex].mass
+                                    if BURN in self.world[ey][ex].reacts_to:
+                                        index = self.world[ey][ex].reacts_to.index(BURN)
+                                        for i in range(len(self.world[ey][ex].reaction_odds[index])):
+                                            if self.world[ey][ex].reaction_odds[index][i] < random():
+                                                result = self.world[ey][ex].reaction_results[index][i]
+                                                if result == None:
+                                                    self.world[ey][ex] = None
+                                                elif inspect.isclass(result):
+                                                    self.world[ey][ex] = result()
+                                                else:
+                                                    getattr(self.world[ey][ex], result)()
+
         return total_energy
 
 class CAM:

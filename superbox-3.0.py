@@ -5,7 +5,7 @@ from time import *
 from superEngine import *
 from materials import *
 
-material_classes = [Fire, Plastic, Stone, Sky_Stone, Sand, Water, Smoke, Wood, Ash, Lava, Dirt]
+material_classes = [Fire, Plastic, Stone, Sky_Stone, Sand, Water, Smoke, Wood, Ash, Lava, Dirt, Tnt, Oil]
 material_names = [i.__name__ for i in material_classes]
 material_colors = [i().color for i in material_classes]
 

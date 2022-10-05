@@ -262,7 +262,7 @@ class Wood:
         self.reacts_as = []
         self.reacts_to = [BURN]
         self.reaction_results = [[Fire, Ash]]
-        self.reaction_odds = [[.5, .3]]
+        self.reaction_odds = [[.5, .2]]
     def reaction_feedback(self, i):
         pass
 
@@ -313,5 +313,54 @@ class Lava:
         self.reacts_to = [EXTINGWISH]
         self.reaction_results = [[Stone, Smoke]]
         self.reaction_odds = [[0.6, 0.05]]
+    def reaction_feedback(self, i):
+        pass
+
+class Tnt:
+    def __init__(self):
+        self.color = Color(
+            randint(220, 250),
+            randint(20, 30),
+            randint(10, 20),
+            255
+        )
+        self.vx = 0
+        self.vy = 0
+        self.gravity_effect = 0
+        self.mass = .5
+        self.bounce = .4
+        self.liquidity = .2
+        self.explosive_power = 300
+        self.current_decay_chance = [0]
+        self.decay_chance_growth = [0]
+        self.decay_to = []
+        self.reacts_as = []
+        self.reacts_to = []
+        self.reaction_results = []
+        self.reaction_odds = []
+    def reaction_feedback(self, i):
+        pass
+    
+class Oil:
+    def __init__(self):
+        self.color = Color(
+            randint(30, 40),
+            randint(60, 70),
+            randint(25, 30),
+            255
+        )
+        self.vx = 0
+        self.vy = 0
+        self.gravity_effect = 1
+        self.mass = 1.5
+        self.bounce = .7
+        self.liquidity = .9
+        self.current_decay_chance = [0]
+        self.decay_chance_growth = [0]
+        self.decay_to = [None]
+        self.reacts_as = []
+        self.reacts_to = [BURN]
+        self.reaction_results = [[Fire]]
+        self.reaction_odds = [[.6]]
     def reaction_feedback(self, i):
         pass
