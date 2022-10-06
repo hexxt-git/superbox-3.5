@@ -286,9 +286,9 @@ class Ash   :
         self.decay_chance_growth = [0]   
         self.decay_to = [None]
         self.reacts_as = []
-        self.reacts_to = []
-        self.reaction_results = []
-        self.reaction_odds = []
+        self.reacts_to = [MOISTER]
+        self.reaction_results = [[Water]]
+        self.reaction_odds = [[0.03]]
     def reaction_feedback(self, i):
         pass
 
@@ -319,7 +319,7 @@ class Lava:
 class Tnt:
     def __init__(self):
         self.color = Color(
-            randint(220, 250),
+            randint(200, 250),
             randint(20, 30),
             randint(10, 20),
             255
@@ -330,7 +330,8 @@ class Tnt:
         self.mass = .5
         self.bounce = .4
         self.liquidity = .2
-        self.explosive_power = 300
+        self.explosive_power = 500
+        self.explosion_radius = 5
         self.current_decay_chance = [0]
         self.decay_chance_growth = [0]
         self.decay_to = []

@@ -163,12 +163,13 @@ class World:
                                         getattr(neighbor, neighbor.reaction_results[reaction_index][i])()
                 
                 # explosions 💥
-                if hasattr(pixel, 'explosive_power'):
+                if hasattr(self.world[y][x], 'explosive_power'):
                     if random() < 0.01:
+                        r = self.world[y][x].explosion_radius
                         self.world[y][x] = None
-                        for ey in range(y-8, y+8):
+                        for ey in range(y-r, y+r):
                             ey %= self.height
-                            for ex in range(x-8, x+8):
+                            for ex in range(x-r, x+r):
                                 ex %= self.width
                                 if self.world[ey][ex] is not None:
                                     if ey <= y:
@@ -202,7 +203,6 @@ class CAM:
         self.vz = 0
 
 # TODO: make an attempt to optimize the code
-# TODO: explosives >:]
 # TODO: magnetism :O
 # TODO: improve the camera
 # TODO: procedually generated islands
@@ -215,3 +215,4 @@ class CAM:
 # DONE: fire.
 # DONE: chimestry
 # DONE: advanced chimestry
+# DONE: explosives >:]
