@@ -6,7 +6,7 @@ from superEngine import *
 from materials import *
 
 material_classes = [Fire, Plastic, Stone, Sky_Stone, Sand, Water, Smoke, Wood, Ash, Lava, Dirt, Tnt, Oil]
-material_names = [i.__name__ for i in material_classes]
+material_names = [i.__name__.replace('_',' ') for i in material_classes]
 material_colors = [i().color for i in material_classes]
 
 width = 800
@@ -15,7 +15,7 @@ color_mode = 0
 selected = 0
 cursor_size = 5
 
-world = World(300, 300)
+world = World(500, 500)
 camera = CAM(0, 0, 5)
 
 init_window( width, height, "superbox 3.0")
