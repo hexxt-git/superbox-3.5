@@ -16,11 +16,11 @@ class World:
         self.height = height
         self.max_v = 5
         self.wind = 0
-        self.max_wind = 0.005
-        self.wind_variable = 0.0002
-        self.wind_normalizer = .99
-        self.gravity = 0.06
-        self.world = [[None for x in range(self.width)] for y in range(self.height)]
+        self.max_wind = 0
+        self.wind_variable = 0
+        self.wind_normalizer = 0
+        self.gravity = 0.08
+        self.world = [[(Stone() if random() < 0.1 else None) for x in range(self.width)] for y in range(self.height)]
 
     def render_texture(self, render_texture, color_mode):
         begin_texture_mode(render_texture)
@@ -163,36 +163,46 @@ class World:
                                         getattr(neighbor, neighbor.reaction_results[reaction_index][i])()
                 
                 # explosions 💥
-                if hasattr(self.world[y][x], 'explosive_power'):
-                    if random() < 0.01:
-                        r = self.world[y][x].explosion_radius
-                        self.world[y][x] = None
-                        for ey in range(y-r, y+r):
-                            ey %= self.height
-                            for ex in range(x-r, x+r):
-                                ex %= self.width
-                                if self.world[ey][ex] is not None:
-                                    if ey <= y:
-                                        self.world[ey][ex].vy -= pixel.explosive_power / self.world[ey][ex].mass
-                                    else:
-                                        self.world[ey][ex].vy += pixel.explosive_power / self.world[ey][ex].mass
-                                    if ex <= x:
-                                        self.world[ey][ex].vx -= pixel.explosive_power / self.world[ey][ex].mass
-                                    else:
-                                        self.world[ey][ex].vx += pixel.explosive_power / self.world[ey][ex].mass
-                                    if BURN in self.world[ey][ex].reacts_to:
-                                        index = self.world[ey][ex].reacts_to.index(BURN)
-                                        for i in range(len(self.world[ey][ex].reaction_odds[index])):
-                                            if self.world[ey][ex].reaction_odds[index][i] < random():
-                                                result = self.world[ey][ex].reaction_results[index][i]
-                                                if result == None:
-                                                    self.world[ey][ex] = None
-                                                elif inspect.isclass(result):
-                                                    self.world[ey][ex] = result()
-                                                else:
-                                                    getattr(self.world[ey][ex], result)()
-
+                if self.world[y][x] is not None:
+                    if self.world[y][x].explosion_chance > random():
+                        if random() < 0.01:
+                            r = self.world[y][x].explosion_radius
+                            self.world[y][x] = None
+                            for ey in range(y-r, y+r):
+                                ey %= self.height
+                                for ex in range(x-r, x+r):
+                                    ex %= self.width
+                                    if self.world[ey][ex] is not None:
+                                        if ey <= y:
+                                            self.world[ey][ex].vy -= pixel.explosive_power / self.world[ey][ex].mass
+                                        else:
+                                            self.world[ey][ex].vy += pixel.explosive_power / self.world[ey][ex].mass
+                                        if ex <= x:
+                                            self.world[ey][ex].vx -= pixel.explosive_power / self.world[ey][ex].mass
+                                        else:
+                                            self.world[ey][ex].vx += pixel.explosive_power / self.world[ey][ex].mass
+                                        if BURN in self.world[ey][ex].reacts_to:
+                                            index = self.world[ey][ex].reacts_to.index(BURN)
+                                            for i in range(len(self.world[ey][ex].reaction_odds[index])):
+                                                if self.world[ey][ex].reaction_odds[index][i] < random():
+                                                    result = self.world[ey][ex].reaction_results[index][i]
+                                                    if result == None:
+                                                        self.world[ey][ex] = None
+                                                    elif inspect.isclass(result):
+                                                        self.world[ey][ex] = result()
+                                                    else:
+                                                        getattr(self.world[ey][ex], result)()
         return total_energy
+    def save(self):
+        world_save = []
+        for row in self.world:
+            world_save.append([])
+            for cell in row:
+                world_save.append(
+                    
+                )
+        return world_save
+
 
 class CAM:
     def __init__(self, x, y, z):
@@ -201,18 +211,3 @@ class CAM:
         self.z = z
         self.scroll_speed = .08
         self.vz = 0
-
-# TODO: make an attempt to optimize the code
-# TODO: magnetism :O
-# TODO: improve the camera
-# TODO: procedually generated islands
-
-# DONE: smoke.
-# DONE: better data visualizing color scheemes
-# DONE: separate the sandbox and the engine
-# DONE: FIX THE CAMERA
-# DONE: better placing of pixels with the mouse
-# DONE: fire.
-# DONE: chimestry
-# DONE: advanced chimestry
-# DONE: explosives >:]
