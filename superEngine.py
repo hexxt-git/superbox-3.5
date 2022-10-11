@@ -20,7 +20,16 @@ class World:
         self.wind_variable = 0
         self.wind_normalizer = 0
         self.gravity = 0.08
-        self.world = [[(Stone() if random() < 0.1 else None) for x in range(self.width)] for y in range(self.height)]
+        self.world = []
+        for y in range(height):
+            self.world.append([])
+            for x in range(width):
+                if y < 5:
+                    self.world[y].append(Stone())
+                elif random() < .1:
+                    self.world[y].append(Sand())
+                else:
+                    self.world[y].append(None)
 
     def render_texture(self, render_texture, color_mode):
         begin_texture_mode(render_texture)
@@ -211,3 +220,40 @@ class CAM:
         self.z = z
         self.scroll_speed = .08
         self.vz = 0
+
+class Widget:
+    def __init__(self, x, y, w, h, color=WHITE, text="", text_size=30, text_color=WHITE, clickable=False):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.color = color
+        self.text = text
+        self.text_size = text_size
+        self.text_color = text_color
+        self.clickable = clickable
+        self.visible = True
+        self.children = []
+    def mouse_over(self):
+        if get_mouse_position().x > self.x and get_mouse_position().x < self.x + self.w:
+            if get_mouse_position().y > self.y and get_mouse_position().y < self.y + self.h:
+                return True
+        return False
+    def update(self):
+        on = False
+        if self.visible:
+            if self.clickable and self.mouse_over():
+                on = True
+                if is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+                    self.execute()
+            draw_rectangle(self.x, self.y, self.w, self.h, self.color)
+            draw_text(self.text, int(self.x+self.w/2 - len(self.text)*self.text_size/3), int((self.y+self.h/2) - self.text_size/2), self.text_size, self.text_color)
+            for child in self.children:
+                if child.update(): on = True
+        return on
+    def add_child(self, child):
+        child.x += self.x
+        child.y += self.y
+        self.children.append(child)
+    def execute(self):
+        print(self.text)
