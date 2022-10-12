@@ -222,16 +222,18 @@ class CAM:
         self.vz = 0
 
 class Widget:
-    def __init__(self, x, y, w, h, color=WHITE, text="", text_size=30, text_color=WHITE, clickable=False):
+    def __init__(self, x, y, w, h, id=random(), color=WHITE, text="", text_size=30, text_color=WHITE, clickable=False, dragable=False):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
+        self.id = id
         self.color = color
         self.text = text
         self.text_size = text_size
         self.text_color = text_color
         self.clickable = clickable
+        self.dragable = dragable
         self.visible = True
         self.children = []
     def mouse_over(self):
@@ -240,20 +242,50 @@ class Widget:
                 return True
         return False
     def update(self):
+        self.custom_updates()
         on = False
         if self.visible:
-            if self.clickable and self.mouse_over():
-                on = True
-                if is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-                    self.execute()
-            draw_rectangle(self.x, self.y, self.w, self.h, self.color)
+            if self.mouse_over():
+                if self.clickable:
+                    on = True
+                    if is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+                        self.execute()
+                if self.dragable:
+                    on = True
+                    if is_mouse_button_down(MOUSE_BUTTON_LEFT):
+                            self.move_by(get_mouse_delta().x, get_mouse_delta().y)
+            draw_rectangle(int(self.x), int(self.y), int(self.w), int(self.h), self.color)
             draw_text(self.text, int(self.x+self.w/2 - len(self.text)*self.text_size/3), int((self.y+self.h/2) - self.text_size/2), self.text_size, self.text_color)
             for child in self.children:
                 if child.update(): on = True
         return on
+
+    def custom_updates(self):
+        pass
+
+    def execute(self):
+        print('executing #'+str(self.id))
+
     def add_child(self, child):
         child.x += self.x
         child.y += self.y
         self.children.append(child)
-    def execute(self):
-        print(self.text)
+
+    def get_child(self, id, i=0):
+        if self.id == id: return self
+        for child in self.children:
+            r = child.get_child(id, i+1)
+            if r is not None: return r
+        return None
+
+    def move_by(self, dx, dy):
+        self.x += dx
+        self.y += dy
+        for child in self.children:
+            child.move_by(dx, dy)
+
+    def print(self, i=0):
+        print("    "*i, end="> ")
+        print(self.id)
+        for child in self.children:
+            child.print(i+1)
