@@ -18,27 +18,29 @@ state = 0
 mouse_on_clickable = False
 
 hud = Widget(0, 0, width, height, "hud", Color(0, 0, 0, 0))
-hud.add_child(Widget(50, 50, 250, 50, "show/hide", Color(30, 30, 30, 230), "show/hide", 30, WHITE, clickable=True))
-hud.add_child(Widget(50, 105, 250, 15, "list_parent", Color(30, 30, 30, 230), dragable=True))
+hud.add_child(Widget(10, 10, 250, 50, "show/hide", Color(30, 30, 30, 230), "show/hide", 30, WHITE, clickable=True))
+hud.add_child(Widget(10, 65, 250, 15, "list_parent", Color(30, 30, 30, 230), dragable=True))
 hud.get_child("list_parent").add_child(Widget(0, 15, 250, 200, "list", Color(60, 60, 60, 180)))
-hud.get_child("list").add_child(Widget( 0, 0, 250, 50, id="1", color=Color(230, 230, 230, 200), text="1", text_color=BLACK, clickable=True))
-hud.get_child("list").add_child(Widget( 0, 55, 250, 50, id="2", color=Color(230, 230, 230, 200), text="2", text_color=BLACK, clickable=True))
-hud.get_child("list").add_child(Widget( 0, 110, 250, 50, id="3", color=Color(230, 230, 230, 200), text="3", text_color=BLACK, clickable=True))
-hud.add_child(Widget(10, 10, 20, 20, 'printer', clickable=True, color=RED))
+hud.get_child("list").add_child(Widget( 0, 0, 250, 50, color=Color(230, 230, 230, 200), text="1", text_color=BLACK, clickable=True))
+hud.get_child("list").add_child(Widget( 0, 55, 250, 50, color=Color(230, 230, 230, 200), text="2", text_color=BLACK, clickable=True))
+hud.get_child("list").add_child(Widget( 0, 110, 250, 50, color=Color(230, 230, 230, 200), text="3", text_color=BLACK, clickable=True))
+hud.add_child(Widget(-15, -15, 30, 30, 'printer', text=":p", text_size=20, clickable=True, color=RED, horizontal_align=CENTER, vertical_align=CENTER, text_x_offset=6, text_y_offset=-2))
+hud.add_child(Widget(5, 5, 200, 30, 'test', text='test', color=Color(30, 30, 30, 230), vertical_align=END, horizontal_align=END, dragable=True))
 
 def showHide():
     hud.get_child("list").visible = not hud.get_child("list").visible
 hud.get_child("show/hide").execute = showHide
 def printer():
     hud.print()
-def colors():
+hud.get_child('printer').execute = printer
+def gamin_background():
     hud.get_child('printer').color = color_from_hsv(
         color_to_hsv(hud.get_child('printer').color).x + 2,
         color_to_hsv(hud.get_child('printer').color).y,
         color_to_hsv(hud.get_child('printer').color).z,
         )
-hud.get_child('printer').execute = printer
-hud.get_child('printer').custom_updates = colors
+    hud.get_child('printer').color.a = 180
+hud.get_child('printer').custom_updates.append(gamin_background)
 
 set_config_flags(FLAG_WINDOW_RESIZABLE)
 init_window( width, height, "superbox 3.0")
@@ -81,8 +83,7 @@ while not window_should_close():
     # ui
     set_mouse_cursor(0)
     mouse_on_clickable = hud.update()
-    if mouse_on_clickable:
-        set_mouse_cursor(4)
+    if mouse_on_clickable: set_mouse_cursor(4)
     else: set_mouse_cursor(0)
     end_drawing()
 
