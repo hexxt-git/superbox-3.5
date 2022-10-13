@@ -3,17 +3,17 @@ from pyray import *
 
 class Stone:
     def __init__(self):
-        v = randint(75, 90)
+        v = randint(75, 95)
         self.color = Color(
             v,
             v,
-            v + randint(0, 10),
+            v + randint(5, 15),
             255
         )
         self.vx = 0
         self.vy = 0
         self.gravity_effect = 0
-        self.mass = 50
+        self.mass = 100
         self.bounce = .3
         self.liquidity = .1
         self.moister = 0
@@ -33,16 +33,23 @@ class Stone:
 class Sand:
     def __init__(self):
         self.color = Color(
-            200,
-            130,
-            90,
+            randint(185, 200),
+            randint(130, 140),
+            randint(60, 70),
             255
         )
+        if random() < .06:
+            self.color = Color(
+                randint(180, 190),
+                randint(120, 130),
+                randint(60, 70),
+                255
+            )
         self.vx = 0
         self.vy = 0
         self.gravity_effect = 1
         self.mass = 2
-        self.bounce = .3
+        self.bounce = .4
         self.liquidity = .2
         self.moister = 0
         self.explosion_chance = 0

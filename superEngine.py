@@ -20,15 +20,15 @@ class World:
         self.height = height
         self.max_v = 5
         self.wind = 0
-        self.max_wind = 0
-        self.wind_variable = 0
-        self.wind_normalizer = 0
-        self.gravity = 0.08
+        self.max_wind = .04
+        self.wind_variable = .001
+        self.wind_normalizer = .998
+        self.gravity = 0.15
         self.world = []
         for y in range(height):
             self.world.append([])
             for x in range(width):
-                if y < 5:
+                if y < 8:
                     self.world[y].append(Stone())
                 elif random() < .1:
                     self.world[y].append(Sand())
@@ -225,7 +225,7 @@ class CAM:
         self.vz = 0
 
 class Widget:
-    def __init__(self, x, y, w, h, id=None, color=WHITE, text="", text_size=30, text_color=WHITE, clickable=False, dragable=False, horizontal_align=True, vertical_align=True, text_x_offset=0, text_y_offset=0):
+    def __init__(self, x, y, w, h, id=None, color=WHITE, text="", text_size=30, text_color=WHITE, clickable=False, dragable=False, horizontal_align=True, vertical_align=True, text_x_offset=0, text_y_offset=0, borders=Color(0,0,0,0), visible=True):
         self.x = x
         self.y = y
         self.w = w
@@ -238,11 +238,12 @@ class Widget:
         self.text_color = text_color
         self.clickable = clickable
         self.dragable = dragable
-        self.visible = True
+        self.visible = visible
         self.horizontal_align = horizontal_align
         self.vertical_align = vertical_align
         self.text_x_offset = text_x_offset
         self.text_y_offset = text_y_offset
+        self.borders = borders
         self.children = []
         self.custom_updates = []
 
@@ -250,22 +251,22 @@ class Widget:
         x = False
         y = False
         if self.horizontal_align == START:
-            if get_mouse_position().x > self.x and get_mouse_position().x < self.x + self.w: x = True
+            if get_mouse_position().x - get_mouse_delta().x > self.x and get_mouse_position().x - get_mouse_delta().x < self.x + self.w: x = True
         elif self.horizontal_align == END:
-            if get_mouse_position().x > get_screen_width() - self.x - self.w and get_mouse_position().x < get_screen_width() - self.x: x = True
+            if get_mouse_position().x - get_mouse_delta().x > get_screen_width() - self.x - self.w and get_mouse_position().x - get_mouse_delta().x < get_screen_width() - self.x: x = True
         elif self.horizontal_align == CENTER:
-            if get_mouse_position().x > get_screen_width()/2 + self.x and get_mouse_position().x < get_screen_width()/2 + self.x + self.w: x = True
+            if get_mouse_position().x - get_mouse_delta().x > get_screen_width()/2 + self.x and get_mouse_position().x - get_mouse_delta().x < get_screen_width()/2 + self.x + self.w: x = True
         if self.vertical_align == START:
-            if get_mouse_position().y > self.y and get_mouse_position().y < self.y + self.h: y = True
+            if get_mouse_position().y - get_mouse_delta().y > self.y and get_mouse_position().y - get_mouse_delta().y < self.y + self.h: y = True
         elif self.vertical_align == END:
-            if get_mouse_position().y > get_screen_height() - self.y - self.h and get_mouse_position().y < get_screen_height() - self.y: y = True
+            if get_mouse_position().y - get_mouse_delta().y > get_screen_height() - self.y - self.h and get_mouse_position().y - get_mouse_delta().y < get_screen_height() - self.y: y = True
         elif self.vertical_align == CENTER:
-            if get_mouse_position().y > get_screen_height()/2 + self.y and get_mouse_position().y < get_screen_height()/2 + self.y + self.h: y = True
+            if get_mouse_position().y - get_mouse_delta().y > get_screen_height()/2 + self.y and get_mouse_position().y - get_mouse_delta().y < get_screen_height()/2 + self.y + self.h: y = True
         return x and y
 
     def update(self):
-        for update in self.custom_updates:
-            update()
+        for up in self.custom_updates:
+            up()
         on = False
         if self.visible:
             if self.mouse_over():
@@ -289,6 +290,7 @@ class Widget:
                 y = int(get_screen_height()-self.y-self.h)
             elif self.vertical_align == CENTER:
                 y = int(get_screen_height()/2 + self.y)
+            draw_rectangle_lines(x, y, int(self.w), int(self.h), self.borders)
             draw_rectangle(x, y, int(self.w), int(self.h), self.color)
             draw_text(self.text, int( x + self.w/2-len(self.text)*self.text_size/3 + self.text_x_offset), int(y + self.h/2 - self.text_size/2 + self.text_y_offset), int(self.text_size), self.text_color)
             for child in self.children:
@@ -311,16 +313,20 @@ class Widget:
         return None
 
     def move_by(self, dx, dy):
-        if self.horizontal_align == END: dx *= -1
-        if self.vertical_align == END: dy *= -1
-        self.x += dx
-        self.y += dy
+        if self.horizontal_align == END:
+            self.x -= dx
+        else:
+            self.x += dx
+        if self.vertical_align == END:
+            self.y -= dy
+        else:
+            self.y += dy
         for child in self.children:
             child.move_by(dx, dy)
 
     def print(self, i=0):
         if i == 0: print('\n')
-        print("    "*i, end="> ")
+        print("    "*i, end="> #")
         print(self.id)
         for child in self.children:
             child.print(i+1)
