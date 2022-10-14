@@ -12,13 +12,16 @@ def save():
     world_save = world.save()
     return True
 
-world = World(150, 150)
+world = World(150, 100)
 camera = CAM(0, 0, 5) 
 playing = True
 state = 0
 view = 0
 mouse_on_clickable = False
 cursor_size = 4
+
+materials = [Water, Sand, Stone, BLACK]
+selected = 0
 
 hud = Widget(0, 0, 1, 1, "hud", Color(0, 0, 0, 0))
 hud.add_child(Widget(10, 5, width-55, 30, "windometer", color=Color(0,0,0,0), borders=WHITE))
@@ -30,8 +33,8 @@ hud.add_child(Widget(10, 5, 30, 30, "materials_btn", text="M", text_size=20, col
 hud.add_child(Widget(10, 40, 30, 30, "tools_btn", text="T", text_size=20, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
 hud.add_child(Widget(10, 75, 30, 30, "view_btn", text="V", text_size=20, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
 
-hud.add_child(Widget(45, 5, 500, 20, "materials_head", text="M A T E R I A L S", text_size=20, text_color=Color(25,25,25,255), text_x_offset=15, color=WHITE, horizontal_align=END, vertical_align=END, dragable=True, visible=False))
-hud.get_child("materials_head").add_child(Widget(0, 20, 500, 300, "materials", color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END))
+hud.add_child(Widget(45, 5, 470, 20, "materials_head", text="M A T E R I A L S", text_size=20, text_color=Color(25,25,25,255), text_x_offset=15, color=WHITE, horizontal_align=END, vertical_align=END, dragable=True, visible=False))
+hud.get_child("materials_head").add_child(Widget(0, 20, 470, 300, "materials", color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END))
 
 hud.get_child("windometer").add_child(Widget(0, 0, 120, hud.get_child("windometer").h, "wind", color=Color(130,130,130,140), text="windometer", text_size=20, text_x_offset=13))
 hud.get_child("fpsmeter").add_child(Widget(0, 0, 120, hud.get_child("fpsmeter").h, "wind", color=Color(130,130,130,140), text="FPS-meter", text_size=20, text_x_offset=7))
@@ -66,6 +69,9 @@ def view_btn():
     global view
     view += 1
     view %= 4
+def select_material(m):
+    global selected
+    selected = m
 
 hud.get_child("windometer").custom_updates.append(windometer_update)
 hud.get_child("fpsmeter").custom_updates.append(fpsmeter_update)
@@ -74,6 +80,10 @@ hud.get_child("fullscreen").execute = fullscreen
 hud.get_child("pause").execute = pause
 hud.get_child("materials_btn").execute = materials_btn
 hud.get_child("view_btn").execute = view_btn
+for i in range(len(materials)):
+    hud.get_child("materials").add_child(Widget((i%3)*155+5, int(i/3)*45+5, 150, 40, id="m-"+str(i), text=materials[i].__name__.replace('_', ' '), text_size=20, color=Color(70, 70, 70, 110), borders=WHITE, vertical_align=END, horizontal_align=END, clickable=True))
+    hud.get_child("m-"+str(i)).execute = [select_material, i]
+
 
 set_config_flags(FLAG_WINDOW_RESIZABLE)
 init_window( width, height, "superbox 3.0")
@@ -99,8 +109,8 @@ while not window_should_close():
                     if y0**2 + x0**2 <= cursor_size**2:
                         x1 = (x0 + x) % world.width
                         y1 = (y0 + y) % world.height
-                        if x1 < world.width and x1 >= 0 and x1 < world.height and x1 >= 0:
-                                world.world[y1][x1] = Sand()
+                        if x1 < world.width and x1 >= 0 and y1 < world.height and y1 >= 0:
+                                world.world[y1][x1] = materials[selected]()
                                 if is_mouse_button_down(MOUSE_BUTTON_RIGHT):
                                     world.world[y1][x1] = None
 

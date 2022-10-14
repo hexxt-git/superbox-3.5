@@ -31,7 +31,7 @@ class World:
                 if y < 8:
                     self.world[y].append(Stone())
                 elif random() < .1:
-                    self.world[y].append(Sand())
+                    self.world[y].append(Water())
                 else:
                     self.world[y].append(None)
 
@@ -114,6 +114,11 @@ class World:
                 if pixel.vy < 0: dy *= -1
                 dx += x
                 dy += y
+
+                if dy == 0 and dx == 0:
+                    if pixel.liquidity > random():
+                        dx = [-1,1][randint(0,1)]
+
                 dx %= self.width
                 dy %= self.height
 
@@ -273,7 +278,10 @@ class Widget:
                 if self.clickable:
                     on = True
                     if is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-                        self.execute()
+                        if isinstance(self.execute, list):
+                            self.execute[0](self.execute[1])
+                        else:
+                            self.execute()
                 if self.dragable:
                     on = True
                     if is_mouse_button_down(MOUSE_BUTTON_LEFT):
