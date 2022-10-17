@@ -28,9 +28,9 @@ class World:
         for y in range(height):
             self.world.append([])
             for x in range(width):
-                if y < 8:
+                if y < 6:
                     self.world[y].append(Stone())
-                elif random() < .1:
+                elif random() < 0.05:
                     self.world[y].append(Water())
                 else:
                     self.world[y].append(None)

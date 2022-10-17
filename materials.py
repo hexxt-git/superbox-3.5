@@ -17,6 +17,7 @@ class Stone:
         self.bounce = .3
         self.liquidity = .1
         self.moister = 0
+        self.temperature = 0
         self.explosion_chance = 0
         self.explosive_power = 0
         self.explosion_radius = 0
@@ -52,6 +53,7 @@ class Sand:
         self.bounce = .4
         self.liquidity = .2
         self.moister = 0
+        self.temperature = 0
         self.explosion_chance = 0
         self.explosive_power = 0
         self.explosion_radius = 0
@@ -80,6 +82,7 @@ class Water:
         self.bounce = .5
         self.liquidity = 1
         self.moister = 5
+        self.temperature = 0
         self.explosion_chance = 0
         self.explosive_power = 0
         self.explosion_radius = 0
@@ -103,6 +106,7 @@ class BLACK:
         self.bounce = .6
         self.liquidity = 1.5
         self.moister = 0
+        self.temperature = 0
         self.explosion_chance = 0
         self.explosive_power = 0
         self.explosion_radius = 0
