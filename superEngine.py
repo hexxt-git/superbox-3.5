@@ -28,12 +28,7 @@ class World:
         for y in range(height):
             self.world.append([])
             for x in range(width):
-                if y < 6:
-                    self.world[y].append(Stone())
-                elif random() < 0.05:
-                    self.world[y].append(Water())
-                else:
-                    self.world[y].append(None)
+                self.world[y].append(None)
 
     def render_texture(self, render_texture, color_mode):
         begin_texture_mode(render_texture)

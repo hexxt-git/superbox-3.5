@@ -16,13 +16,14 @@ def save():
 world = World(150, 100)
 camera = CAM(0, 0, 5) 
 playing = True
-state = 0
-view = 0
 mouse_on_clickable = False
 cursor_size = 4
 
-materials = [Water, Sand, Stone, BLACK]
+materials = [Water, Sand, Stone, Sky_stone, Wood, Fire, Smoke, Ash, Dirt]
 selected = 0
+
+views = ['color', 'energy', 'velocity', 'moister', 'temperature']
+view = 0
 
 hud = Widget(0, 0, 1, 1, "hud", Color(0, 0, 0, 0))
 hud.add_child(Widget(10, 5, width-55, 30, "windometer", color=Color(0,0,0,0), borders=WHITE))
@@ -35,7 +36,7 @@ hud.add_child(Widget(10, 40, 30, 30, "tools_btn", text="T", text_size=20, color=
 hud.add_child(Widget(10, 75, 30, 30, "view_btn", text="V", text_size=20, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
 
 hud.add_child(Widget(45, 5, 470, 20, "tools_head", text="T O O L S", text_size=20, text_color=Color(25,25,25,255), text_x_offset=15, color=WHITE, horizontal_align=END, vertical_align=END, dragable=True, visible=False))
-hud.get_child("tools_head").add_child(Widget(0, 20, 470, 300, "tools", color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END))
+hud.get_child("tools_head").add_child(Widget(10, 20, 470, 300, "tools", text='WIP', color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END))
 
 hud.add_child(Widget(45, 5, 470, 20, "materials_head", text="M A T E R I A L S", text_size=20, text_color=Color(25,25,25,255), text_x_offset=15, color=WHITE, horizontal_align=END, vertical_align=END, dragable=True, visible=False))
 hud.get_child("materials_head").add_child(Widget(0, 20, 470, 300, "materials", color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END))
@@ -155,6 +156,7 @@ while not window_should_close():
     mouse_on_clickable = hud.update()
     if mouse_on_clickable: set_mouse_cursor(4)
     elif is_cursor_on_screen(): set_mouse_cursor(3)
+    draw_text(views[view], 10, height-30, 23, WHITE)
 
     end_drawing()
 
