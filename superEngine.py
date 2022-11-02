@@ -126,6 +126,9 @@ class World:
 
                 # moving pixels and physical reactions
                 result = self.attempt_swap(x, y, dx, dy)
+                if result == Success:
+                    pixel = self.world[dy][dx]
+
                 if result == Neighbor:
                     neighbor = self.world[dy][dx]
                     # the ratio enery is redestibuted upon
@@ -199,15 +202,15 @@ class World:
                 if pixel.freeze_at is not None:
                     if pixel.temperature < pixel.freeze_at:
                         if pixel.freeze_to is not None:
-                            self.world[y][x] = pixel.freeze_to()
+                            self.world[dy][dx] = pixel.freeze_to()
                         else:
-                            self.world[y][x] = None
+                            self.world[dy][dx] = None
                 if pixel.melt_at is not None:
                     if pixel.temperature > pixel.melt_at:
                         if pixel.melt_to is not None:
-                            self.world[y][x] = pixel.melt_to()
+                            self.world[dy][dx] = pixel.melt_to()
                         else:
-                            self.world[y][x] = None
+                            self.world[dy][dx] = None
 
                 # explosions 💥
                 if self.world[y][x] is not None: # i need to rework this <--------------------------------
