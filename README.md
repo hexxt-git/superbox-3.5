@@ -1,5 +1,9 @@
 # superbox-3.5
-python pixel sim
+python pixel simulation with ui
+
+![image](https://user-images.githubusercontent.com/88392191/199274973-2c35b00b-9a98-4feb-98f5-de7116cd5fc2.png)
+
+(work in progress screenshot)
 
 # usage
 - clone the code
