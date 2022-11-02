@@ -13,13 +13,13 @@ def save():
     return True
 
 
-world = World(150, 100)
+world = World(300, 150)
 camera = CAM(0, 0, 5) 
 playing = True
 mouse_on_clickable = False
 cursor_size = 4
 
-materials = [Water, Sand, Stone, Sky_stone, Wood, Fire, Smoke, Ash, Dirt]
+materials = [Stone, Sand, Water, Sky_stone, Wood, Fire, Smoke, Ash, Dirt, Lava, Tnt]
 selected = 0
 
 views = ['color', 'energy', 'velocity', 'moister', 'temperature']
@@ -77,7 +77,7 @@ def view_mode():
     global view
     view += 1
     if is_key_down(KEY_LEFT_SHIFT): view -= 2
-    view %= 4
+    view %= 5
 def select_material(m):
     global selected
     selected = m

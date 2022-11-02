@@ -55,6 +55,13 @@ class World:
                         m = int(max(min(pixel.moister / 5 * 255, 255), 0))
                         c = Color(m, m, m, 255)
                     else: c = BLACK
+                if color_mode == 4: # temperature mode
+                    v = pixel.temperature
+                    r = 110
+                    v = min(v, r)
+                    v = max(v, -r)
+                    v = (v + r) / (r * 2) * 360
+                    c = color_from_hsv(int(v), 0.8, 0.8)
 
                 draw_pixel(x, y, c)
         end_texture_mode()
@@ -117,9 +124,9 @@ class World:
                 dx %= self.width
                 dy %= self.height
 
-                # swapping stuff and collision reactions
-                state = self.attempt_swap(x, y, dx, dy)
-                if state == Neighbor:
+                # moving pixels and physical reactions
+                result = self.attempt_swap(x, y, dx, dy)
+                if result == Neighbor:
                     neighbor = self.world[dy][dx]
                     # the ratio enery is redestibuted upon
                     ratio = neighbor.mass / (pixel.mass + neighbor.mass)
@@ -147,9 +154,9 @@ class World:
                 total_energy += (pixel.vx + pixel.vy) * pixel.mass
             
                 #   chimestry 🧪
+                # decay
                 for i in range(len(pixel.current_decay_chance)):
                     pixel.current_decay_chance[i] += pixel.decay_chance_growth[i]
-
                 for i in range(len(pixel.current_decay_chance)):
                     if pixel.current_decay_chance[i] > random() * 100:
                         if pixel.decay_to[i] is not None:
@@ -157,8 +164,8 @@ class World:
                             self.world[y][x].vx = (pixel.vx * pixel.mass) / self.world[y][x].mass
                             self.world[y][x].vy = (pixel.vy * pixel.mass) / self.world[y][x].mass
                         else: self.world[y][x] = None
-
-                if state == Neighbor:
+                # chimical reactions
+                if result == Neighbor:
                     neighbor = self.world[dy][dx]
                     for reaction in pixel.reacts_as:
                         if reaction in neighbor.reacts_to:
@@ -174,9 +181,36 @@ class World:
                                         self.world[dy][dx].vy = (neighbor.vy * neighbor.mass) / self.world[dy][dx].mass
                                     else:
                                         getattr(neighbor, neighbor.reaction_results[reaction_index][i])()
-                
+                # temperature exchange 🔥
+                if result == Neighbor:
+                    neighbor = self.world[dy][dx]
+                    exchange = (pixel.temperature_exchange + neighbor.temperature_exchange) / 2
+                    old_temp = pixel.temperature
+                    pixel.temperature = (1+exchange)/2 * pixel.temperature + (1-exchange)/2 * neighbor.temperature
+                    neighbor.temperature = (1+exchange)/2 * neighbor.temperature + (1-exchange)/2 * old_temp
+                #pixel.temperature *= .9999 # balances the temperature of really hot pixels such as lava
+                if abs(pixel.temperature) > 1: # balances the temperature of normal pixels such as water and smoke
+                    if pixel.temperature > 0:
+                        pixel.temperature -= 0.01
+                    else:
+                        pixel.temperature += 0.01
+
+                # freezing and melting 🥶🥵
+                if pixel.freeze_at is not None:
+                    if pixel.temperature < pixel.freeze_at:
+                        if pixel.freeze_to is not None:
+                            self.world[y][x] = pixel.freeze_to()
+                        else:
+                            self.world[y][x] = None
+                if pixel.melt_at is not None:
+                    if pixel.temperature > pixel.melt_at:
+                        if pixel.melt_to is not None:
+                            self.world[y][x] = pixel.melt_to()
+                        else:
+                            self.world[y][x] = None
+
                 # explosions 💥
-                if self.world[y][x] is not None:
+                if self.world[y][x] is not None: # i need to rework this <--------------------------------
                     if self.world[y][x].explosion_chance > random():
                         if random() < 0.01:
                             r = self.world[y][x].explosion_radius
@@ -194,17 +228,6 @@ class World:
                                             self.world[ey][ex].vx -= pixel.explosive_power / self.world[ey][ex].mass
                                         else:
                                             self.world[ey][ex].vx += pixel.explosive_power / self.world[ey][ex].mass
-                                        if BURN in self.world[ey][ex].reacts_to:
-                                            index = self.world[ey][ex].reacts_to.index(BURN)
-                                            for i in range(len(self.world[ey][ex].reaction_odds[index])):
-                                                if self.world[ey][ex].reaction_odds[index][i] < random():
-                                                    result = self.world[ey][ex].reaction_results[index][i]
-                                                    if result == None:
-                                                        self.world[ey][ex] = None
-                                                    elif inspect.isclass(result):
-                                                        self.world[ey][ex] = result()
-                                                    else:
-                                                        getattr(self.world[ey][ex], result)()
         return total_energy
     def save(self):
         world_save = []
