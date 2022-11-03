@@ -491,7 +491,7 @@ class Ice:
     def reaction_feedback(self, i):
         pass
 
-class Super_ice:
+class Super_Ice:
     def __init__(self):
         self.color = Color(
             randint(150, 180),

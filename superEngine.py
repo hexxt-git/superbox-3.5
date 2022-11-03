@@ -235,15 +235,6 @@ class World:
                                         else:
                                             self.world[ey][ex].vx += pixel.explosive_power / self.world[ey][ex].mass
         return total_energy
-    def save(self):
-        world_save = []
-        for row in self.world:
-            world_save.append([])
-            for cell in row:
-                world_save.append(
-                    # insert JSON stuff
-                )
-        return world_save
 
 class CAM:
     def __init__(self, x, y, z):

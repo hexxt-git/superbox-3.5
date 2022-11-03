@@ -8,18 +8,13 @@ from materials import *
 width = 800
 height = 600
 
-def save():
-    world_save = world.save()
-    return True
-
-
 world = World(300, 150)
 camera = CAM(0, 0, 5) 
 playing = True
 mouse_on_clickable = False
 cursor_size = 4
 
-materials = [Stone, Sand, Water, Sky_stone, Wood, Fire, Steam, Ash, Dirt, Lava, Tnt, Ice, Plastic, Super_ice]
+materials = [Stone, Sand, Water, Sky_stone, Wood, Fire, Steam, Ash, Dirt, Lava, Tnt, Ice, Plastic, Super_Ice]
 selected = 0
 
 views = ['color', 'energy', 'velocity', 'moister', 'temperature']
@@ -89,6 +84,30 @@ def select_material(m):
             button.color = Color(70, 70, 70, 110)
 def wind_toggle():
     world.wind_toggle = not world.wind_toggle
+def save():
+    world_save = ''
+    for y in range(world.height):
+        for x in range(world.width):
+            world_save += '-'
+            if world.world[y][x] is not None:
+                world_save += str(materials.index(world.world[y][x].__class__))
+        world_save += '\n'
+    f = open("save.txt", "w")
+    f.write(world_save)
+    f.close()
+def load():
+    f = open("save.txt", "r")
+    world_save = f.read()
+    world_save = [line.split('-') for line in world_save.split('\n')]
+    world.world = []
+    for y in range(len(world_save)):
+        world.world.append([])
+        for x in range(len(world_save[y])):
+            if world_save[y][x] != '':
+                world.world[y].append(materials[int(world_save[y][x])]())
+            else:
+                world.world[y].append(None)
+    f.close()
 
 hud.get_child("windometer").custom_updates.append(windometer_update)
 hud.get_child("wind").execute = wind_toggle
@@ -137,6 +156,8 @@ while not window_should_close():
     if is_key_pressed(KEY_F): fullscreen()
     if is_key_pressed(KEY_SPACE): pause()
     if is_key_pressed(KEY_TAB): view_mode()
+    if is_key_pressed(KEY_S): save()
+    if is_key_pressed(KEY_L): load()
     # ---- simulation ----
     step += 1
     
@@ -147,8 +168,6 @@ while not window_should_close():
     else: camera.vx = 0
     camera.vz *= .8
     if abs(camera.vz) < .01: camera.vz = 0
-
-    #if step % 1000 == 0: save()
 
     if playing:
         world.update()
