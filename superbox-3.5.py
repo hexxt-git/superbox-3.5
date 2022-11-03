@@ -19,7 +19,7 @@ playing = True
 mouse_on_clickable = False
 cursor_size = 4
 
-materials = [Stone, Sand, Water, Sky_stone, Wood, Fire, Smoke, Ash, Dirt, Lava, Tnt]
+materials = [Stone, Sand, Water, Sky_stone, Wood, Fire, Steam, Ash, Dirt, Lava, Tnt, Ice, Plastic, Super_ice]
 selected = 0
 
 views = ['color', 'energy', 'velocity', 'moister', 'temperature']
@@ -42,13 +42,14 @@ hud.add_child(Widget(45, 5, 470, 20, "materials_head", text="M A T E R I A L S",
 hud.get_child("materials_head").add_child(Widget(0, 20, 470, 300, "materials", color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END))
 
 
-hud.get_child("windometer").add_child(Widget(0, 0, 120, hud.get_child("windometer").h, "wind", color=Color(130,130,130,140), text="windometer", text_size=20, text_x_offset=13))
+hud.get_child("windometer").add_child(Widget(0, 0, 120, hud.get_child("windometer").h, id="wind", color=Color(130,130,130,140), text="windometer", text_size=20, text_x_offset=13, clickable=True))
 hud.get_child("fpsmeter").add_child(Widget(0, 0, 120, hud.get_child("fpsmeter").h, "wind", color=Color(130,130,130,140), text="FPS-meter", text_size=20, text_x_offset=7))
 def windometer_update():
     hud.get_child("windometer").w = width-55
     draw_rectangle(int(hud.get_child("windometer").x + hud.get_child("windometer").w/2), int(hud.get_child("windometer").y + 4), 1, hud.get_child("windometer").h-8, WHITE)
-    if world.max_wind != 0:
-        draw_rectangle(int(hud.get_child("windometer").x + hud.get_child("windometer").w/2 + world.wind/world.max_wind*hud.get_child("windometer").w/2), int(hud.get_child("windometer").y + 2), 2, hud.get_child("windometer").h-4, WHITE)
+    if world.wind_toggle:
+        if world.max_wind != 0:
+            draw_rectangle(int(hud.get_child("windometer").x + hud.get_child("windometer").w/2 + world.wind/world.max_wind*hud.get_child("windometer").w/2), int(hud.get_child("windometer").y + 2), 2, hud.get_child("windometer").h-4, WHITE)
 def fpsmeter_update():
     hud.get_child("fpsmeter").w = width-55
     if get_frame_time() != 0:
@@ -81,8 +82,16 @@ def view_mode():
 def select_material(m):
     global selected
     selected = m
+    for index, button in enumerate(hud.get_child("materials").children):
+        if index == m:
+            button.color = Color(30, 30, 30, 130)
+        else:
+            button.color = Color(70, 70, 70, 110)
+def wind_toggle():
+    world.wind_toggle = not world.wind_toggle
 
 hud.get_child("windometer").custom_updates.append(windometer_update)
+hud.get_child("wind").execute = wind_toggle
 hud.get_child("fpsmeter").custom_updates.append(fpsmeter_update)
 hud.get_child("close").execute = close_window
 hud.get_child("fullscreen").execute = fullscreen
@@ -94,6 +103,7 @@ for i in range(len(materials)):
     hud.get_child("materials").add_child(Widget((i%3)*155+5, int(i/3)*45+5, 150, 40, id="m-"+str(i), text=materials[i].__name__.replace('_', ' '), text_size=20, color=Color(70, 70, 70, 110), borders=WHITE, vertical_align=END, horizontal_align=END, clickable=True))
     hud.get_child("m-"+str(i)).execute = [select_material, i]
 hud.get_child("materials").h = ceil(len(materials)/3)*45+5
+select_material(0)
 
 set_config_flags(FLAG_WINDOW_RESIZABLE)
 init_window( width, height, "superbox 3.0")

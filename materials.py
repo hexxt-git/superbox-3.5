@@ -75,8 +75,8 @@ class Sand:
         self.reaction_odds = [[0.3]]
         self.freeze_at = None
         self.freeze_to = None
-        self.melt_at = None
-        self.melt_to = None
+        self.melt_at = 20
+        self.melt_to = Plastic
     def moisterize(self):
         self.moister += 1
         if self.moister > 5:
@@ -145,7 +145,7 @@ class Water:
         self.bounce = .5
         self.liquidity = 1
         self.moister = 50
-        self.temperature = randint(-5, 5)
+        self.temperature = 0
         self.temperature_exchange = .4
         self.explosion_chance = 0
         self.explosive_power = 0
@@ -157,10 +157,10 @@ class Water:
         self.reacts_to = []
         self.reaction_results = []
         self.reaction_odds = []
-        self.freeze_at = None
-        self.freeze_to = None
-        self.melt_at = 10
-        self.melt_to = Smoke
+        self.freeze_at = -20
+        self.freeze_to = Ice
+        self.melt_at = 15
+        self.melt_to = Steam
     def reaction_feedback(self, i):
         if i == MOISTER:
             self.moister -= 1
@@ -168,13 +168,13 @@ class Water:
             self.current_decay_chance = [1]
             self.decay_to = [None]
 
-class Smoke:
+class Steam:
     def __init__(self):
-        v = randint( 180, 240)
+        v = randint( 200, 250)
         self.color = Color(
             v,
             v,
-            v - randint(10 , 20),
+            v - randint(5 , 15),
             200
         )
         self.vx = 0
@@ -184,7 +184,7 @@ class Smoke:
         self.bounce = .05
         self.liquidity = .9
         self.moister = 0
-        self.temperature = 15
+        self.temperature = 20
         self.temperature_exchange = .6
         self.explosion_chance = 0
         self.explosive_power = 0
@@ -420,5 +420,107 @@ class Tnt:
         self.freeze_to = None
         self.melt_at = None
         self.melt_to = None
+    def reaction_feedback(self, i):
+        pass
+
+class Plastic:
+    def __init__(self):
+        self.color = Color(
+            randint(50, 230),
+            randint(50, 230),
+            randint(50, 230),
+            randint(230, 250)
+        )
+        self.vx = 0
+        self.vy = 0
+        self.gravity_effect = .8
+        self.mass = 3
+        self.bounce = .9
+        self.liquidity = .8
+        self.moister = 0
+        self.temperature = 0
+        self.temperature_exchange = 0.8
+        self.explosion_chance = 0
+        self.explosive_power = 0
+        self.explosion_radius = 0
+        self.current_decay_chance = [0]
+        self.decay_chance_growth = [0]
+        self.decay_to = [None]
+        self.reacts_as = []
+        self.reacts_to = []
+        self.reaction_results = []
+        self.reaction_odds = []
+        self.freeze_at = None
+        self.freeze_to = None
+        self.melt_at = None
+        self.melt_to = None
+    def reaction_feedback(self, i):
+        pass
+
+class Ice:
+    def __init__(self):
+        self.color = Color(
+            randint(95, 105),
+            randint(170, 180),
+            randint(230, 250),
+            randint(200, 220)
+        )
+        self.vx = 0
+        self.vy = 0
+        self.gravity_effect = 0
+        self.mass = 20
+        self.bounce = .9
+        self.liquidity = .8
+        self.moister = 20
+        self.temperature = -30
+        self.temperature_exchange = 0.5
+        self.explosion_chance = 0
+        self.explosive_power = 0
+        self.explosion_radius = 0
+        self.current_decay_chance = [0]
+        self.decay_chance_growth = [0]
+        self.decay_to = [None]
+        self.reacts_as = []
+        self.reacts_to = []
+        self.reaction_results = []
+        self.reaction_odds = []
+        self.freeze_at = None
+        self.freeze_to = None
+        self.melt_at = 0
+        self.melt_to = Water
+    def reaction_feedback(self, i):
+        pass
+
+class Super_ice:
+    def __init__(self):
+        self.color = Color(
+            randint(150, 180),
+            randint(200, 230),
+            randint(230, 250),
+            randint(200, 220)
+        )
+        self.vx = 0
+        self.vy = 0
+        self.gravity_effect = 0
+        self.mass = 20
+        self.bounce = .9
+        self.liquidity = .8
+        self.moister = 30
+        self.temperature = -100
+        self.temperature_exchange = 1
+        self.explosion_chance = 0
+        self.explosive_power = 0
+        self.explosion_radius = 0
+        self.current_decay_chance = [0]
+        self.decay_chance_growth = [0]
+        self.decay_to = [None]
+        self.reacts_as = []
+        self.reacts_to = []
+        self.reaction_results = []
+        self.reaction_odds = []
+        self.freeze_at = None
+        self.freeze_to = None
+        self.melt_at = -30
+        self.melt_to = Ice
     def reaction_feedback(self, i):
         pass

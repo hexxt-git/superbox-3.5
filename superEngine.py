@@ -19,6 +19,7 @@ class World:
         self.width = width
         self.height = height
         self.max_v = 5
+        self.wind_toggle = True
         self.wind = 0
         self.max_wind = .04
         self.wind_variable = .001
@@ -57,7 +58,7 @@ class World:
                     else: c = BLACK
                 if color_mode == 4: # temperature mode
                     v = pixel.temperature
-                    r = 110
+                    r = 120 # range of temperatures displayed
                     v = min(v, r)
                     v = max(v, -r)
                     v = (v + r) / (r * 2) * 360
@@ -104,8 +105,9 @@ class World:
 
                 if abs(pixel.vy) < .5:
                     pixel.vy -= self.gravity * pixel.gravity_effect 
-                if self.world[y][(x+wind_side)%(self.width-1)] is None:
-                    pixel.vx += self.wind / pixel.mass
+                if self.wind_toggle:
+                    if self.world[y][(x+wind_side)%(self.width-1)] is None:
+                        pixel.vx += self.wind / pixel.mass
 
                 #   physics ⛓️
                 
@@ -126,8 +128,6 @@ class World:
 
                 # moving pixels and physical reactions
                 result = self.attempt_swap(x, y, dx, dy)
-                if result == Success:
-                    pixel = self.world[dy][dx]
 
                 if result == Neighbor:
                     neighbor = self.world[dy][dx]
@@ -199,6 +199,9 @@ class World:
                         pixel.temperature += 0.01
 
                 # freezing and melting 🥶🥵
+                if result == Neighbor:
+                    dx = x
+                    dy = y
                 if pixel.freeze_at is not None:
                     if pixel.temperature < pixel.freeze_at:
                         if pixel.freeze_to is not None:
