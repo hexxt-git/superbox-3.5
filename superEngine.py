@@ -14,12 +14,18 @@ END = 0
 START = 1
 CENTER = 2
 
+def exchange_temperature(pixel1, pixel2):
+    exchange = (pixel1.temperature_exchange + pixel2.temperature_exchange) / 2
+    old_temp = pixel1.temperature
+    pixel1.temperature = (1+exchange)/2 * pixel1.temperature + (1-exchange)/2 * pixel2.temperature
+    pixel2.temperature = (1+exchange)/2 * pixel2.temperature + (1-exchange)/2 * old_temp
+
 class World:
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.max_v = 5
-        self.wind_toggle = True
+        self.wind_toggle = False
         self.wind = 0
         self.max_wind = .04
         self.wind_variable = .001
@@ -187,12 +193,9 @@ class World:
                 # temperature exchange 🔥
                 if result == Neighbor:
                     neighbor = self.world[dy][dx]
-                    exchange = (pixel.temperature_exchange + neighbor.temperature_exchange) / 2
-                    old_temp = pixel.temperature
-                    pixel.temperature = (1+exchange)/2 * pixel.temperature + (1-exchange)/2 * neighbor.temperature
-                    neighbor.temperature = (1+exchange)/2 * neighbor.temperature + (1-exchange)/2 * old_temp
-                #pixel.temperature *= .9999 # balances the temperature of really hot pixels such as lava
-                if abs(pixel.temperature) > 1: # balances the temperature of normal pixels such as water and smoke
+                    exchange_temperature(pixel, neighbor)
+
+                if abs(pixel.temperature) > 1: # temperature lost
                     if pixel.temperature > 0:
                         pixel.temperature -= 0.01
                     else:
@@ -245,7 +248,7 @@ class CAM:
         self.vz = 0
 
 class Widget:
-    def __init__(self, x, y, w, h, id=None, color=WHITE, text="", text_size=30, text_color=WHITE, clickable=False, dragable=False, horizontal_align=True, vertical_align=True, text_x_offset=0, text_y_offset=0, borders=Color(0,0,0,0), visible=True):
+    def __init__(self, x, y, w, h, id=None, color=WHITE, text="", text_size=30, text_color=WHITE, clickable=False, dragable=False, horizontal_align=True, vertical_align=True, text_align=True, text_x_offset=0, text_y_offset=0, borders=Color(0,0,0,0), visible=True):
         self.x = x
         self.y = y
         self.w = w
@@ -261,6 +264,7 @@ class Widget:
         self.visible = visible
         self.horizontal_align = horizontal_align
         self.vertical_align = vertical_align
+        self.text_align = text_align
         self.text_x_offset = text_x_offset
         self.text_y_offset = text_y_offset
         self.borders = borders
@@ -315,7 +319,7 @@ class Widget:
                 y = int(get_screen_height()/2 + self.y)
             draw_rectangle_lines(x, y, int(self.w), int(self.h), self.borders)
             draw_rectangle(x, y, int(self.w), int(self.h), self.color)
-            draw_text(self.text, int( x + self.w/2-len(self.text)*self.text_size/3 + self.text_x_offset), int(y + self.h/2 - self.text_size/2 + self.text_y_offset), int(self.text_size), self.text_color)
+            draw_text(self.text, int( x + (self.w/2-len(self.text)*self.text_size/3 if self.text_align else 0) + self.text_x_offset), int(y + self.h/2 - self.text_size/2 + self.text_y_offset), int(self.text_size), self.text_color)
             for child in self.children:
                 if child.update(): on = True
         return on

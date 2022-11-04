@@ -14,12 +14,13 @@ playing = True
 mouse_on_clickable = False
 cursor_size = 4
 
-materials = [Stone, Sand, Water, Sky_stone, Wood, Fire, Steam, Ash, Dirt, Lava, Tnt, Ice, Plastic, Super_Ice]
+materials = [Stone, Sand, Water, Sky_stone, Wood, Fire, Steam, Ash, Dirt, Lava, Tnt, Ice, Plastic, Super_Ice, Oil]
 selected = 0
 
 views = ['color', 'energy', 'velocity', 'moister', 'temperature']
 view = 0
 
+# ---- hud setup ----
 hud = Widget(0, 0, 1, 1, "hud", Color(0, 0, 0, 0))
 hud.add_child(Widget(10, 5, width-55, 30, "windometer", color=Color(0,0,0,0), borders=WHITE))
 hud.add_child(Widget(10, 40, width-55, 30, "fpsmeter", color=Color(0,0,0,0), borders=WHITE))
@@ -29,6 +30,8 @@ hud.add_child(Widget(10, 75, 30, 30, "pause", text="| |", text_size=16, color=Co
 hud.add_child(Widget(10, 5, 30, 30, "materials_btn", text="M", text_size=20, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
 hud.add_child(Widget(10, 40, 30, 30, "tools_btn", text="T", text_size=20, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
 hud.add_child(Widget(10, 75, 30, 30, "view_btn", text="V", text_size=20, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
+hud.add_child(Widget(10, -20, 30, 30, "save_btn", text="S", text_size=20, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=CENTER, clickable=True))
+hud.add_child(Widget(10, 15, 30, 30, "load_btn", text="L", text_size=20, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=CENTER, clickable=True))
 
 hud.add_child(Widget(45, 5, 470, 20, "tools_head", text="T O O L S", text_size=20, text_color=Color(25,25,25,255), text_x_offset=15, color=WHITE, horizontal_align=END, vertical_align=END, dragable=True, visible=False))
 hud.get_child("tools_head").add_child(Widget(10, 20, 470, 300, "tools", text='WIP', color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END))
@@ -36,6 +39,7 @@ hud.get_child("tools_head").add_child(Widget(10, 20, 470, 300, "tools", text='WI
 hud.add_child(Widget(45, 5, 470, 20, "materials_head", text="M A T E R I A L S", text_size=20, text_color=Color(25,25,25,255), text_x_offset=15, color=WHITE, horizontal_align=END, vertical_align=END, dragable=True, visible=False))
 hud.get_child("materials_head").add_child(Widget(0, 20, 470, 300, "materials", color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END))
 
+hud.add_child(Widget(5, 5, 150, 20, "view_mode", text="view mode: ", color=Color(0, 0, 0, 0), text_size=20, vertical_align=False, text_align=False))
 
 hud.get_child("windometer").add_child(Widget(0, 0, 120, hud.get_child("windometer").h, id="wind", color=Color(130,130,130,140), text="windometer", text_size=20, text_x_offset=13, clickable=True))
 hud.get_child("fpsmeter").add_child(Widget(0, 0, 120, hud.get_child("fpsmeter").h, "wind", color=Color(130,130,130,140), text="FPS-meter", text_size=20, text_x_offset=7))
@@ -88,17 +92,17 @@ def save():
     world_save = ''
     for y in range(world.height):
         for x in range(world.width):
-            world_save += '-'
+            world_save += ' '
             if world.world[y][x] is not None:
                 world_save += str(materials.index(world.world[y][x].__class__))
         world_save += '\n'
-    f = open("save.txt", "w")
+    f = open("save.sbx", "w")
     f.write(world_save)
     f.close()
 def load():
-    f = open("save.txt", "r")
+    f = open("save.sbx", "r")
     world_save = f.read()
-    world_save = [line.split('-') for line in world_save.split('\n')]
+    world_save = [line.split(' ') for line in world_save.split('\n')]
     world.world = []
     for y in range(len(world_save)):
         world.world.append([])
@@ -108,7 +112,10 @@ def load():
             else:
                 world.world[y].append(None)
     f.close()
+def view_mode_update():
+    hud.get_child("view_mode").text = views[view]
 
+hud.get_child("view_mode").custom_updates.append(view_mode_update)
 hud.get_child("windometer").custom_updates.append(windometer_update)
 hud.get_child("wind").execute = wind_toggle
 hud.get_child("fpsmeter").custom_updates.append(fpsmeter_update)
@@ -118,12 +125,14 @@ hud.get_child("pause").execute = pause
 hud.get_child("materials_btn").execute = materials_btn
 hud.get_child("tools_btn").execute = tools_btn
 hud.get_child("view_btn").execute = view_mode
+hud.get_child("save_btn").execute = save
+hud.get_child("load_btn").execute = load
 for i in range(len(materials)):
     hud.get_child("materials").add_child(Widget((i%3)*155+5, int(i/3)*45+5, 150, 40, id="m-"+str(i), text=materials[i].__name__.replace('_', ' '), text_size=20, color=Color(70, 70, 70, 110), borders=WHITE, vertical_align=END, horizontal_align=END, clickable=True))
     hud.get_child("m-"+str(i)).execute = [select_material, i]
 hud.get_child("materials").h = ceil(len(materials)/3)*45+5
 select_material(0)
-
+# ---- window setup ----
 set_config_flags(FLAG_WINDOW_RESIZABLE)
 init_window( width, height, "superbox 3.0")
 render_texture = load_render_texture(world.width, world.height)
@@ -155,9 +164,11 @@ while not window_should_close():
 
     if is_key_pressed(KEY_F): fullscreen()
     if is_key_pressed(KEY_SPACE): pause()
-    if is_key_pressed(KEY_TAB): view_mode()
+    if is_key_pressed(KEY_TAB) or is_key_pressed(KEY_V): view_mode()
     if is_key_pressed(KEY_S): save()
     if is_key_pressed(KEY_L): load()
+    if is_key_pressed(KEY_M): materials_btn()
+    if is_key_pressed(KEY_T): tools_btn()
     # ---- simulation ----
     step += 1
     
@@ -185,7 +196,6 @@ while not window_should_close():
     mouse_on_clickable = hud.update()
     if mouse_on_clickable: set_mouse_cursor(4)
     elif is_cursor_on_screen(): set_mouse_cursor(3)
-    draw_text(views[view], 10, height-30, 23, WHITE)
 
     end_drawing()
 

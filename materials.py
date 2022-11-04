@@ -256,7 +256,7 @@ class Stone:
         self.liquidity = .1
         self.moister = 0
         self.temperature = 0
-        self.temperature_exchange = 0.5
+        self.temperature_exchange = .8
         self.explosion_chance = 0
         self.explosive_power = 0
         self.explosion_radius = 0
@@ -269,7 +269,7 @@ class Stone:
         self.reaction_odds = []
         self.freeze_at = None
         self.freeze_to = None
-        self.melt_at = 60
+        self.melt_at = 50
         self.melt_to = Lava
     def reaction_feedback(self, i):
         pass
@@ -384,7 +384,7 @@ class Wood:
         self.reaction_odds = []
         self.freeze_at = None
         self.freeze_to = None
-        self.melt_at = 20
+        self.melt_at = 10
         self.melt_to = Fire
     def reaction_feedback(self, i):
         pass
@@ -434,8 +434,8 @@ class Plastic:
         self.vx = 0
         self.vy = 0
         self.gravity_effect = .8
-        self.mass = 3
-        self.bounce = .9
+        self.mass = 4
+        self.bounce = .8
         self.liquidity = .8
         self.moister = 0
         self.temperature = 0
@@ -522,5 +522,39 @@ class Super_Ice:
         self.freeze_to = None
         self.melt_at = -30
         self.melt_to = Ice
+    def reaction_feedback(self, i):
+        pass
+
+class Oil:
+    def __init__(self):
+        self.color = Color(
+            randint(20, 30),
+            randint(50, 60),
+            randint(20, 25),
+            255
+        )
+        self.vx = 0
+        self.vy = 0
+        self.gravity_effect = 1
+        self.mass = 2
+        self.bounce = .4
+        self.liquidity = .8
+        self.moister = 0
+        self.temperature = 0
+        self.temperature_exchange = 1
+        self.explosion_chance = 0
+        self.explosive_power = 0
+        self.explosion_radius = 0
+        self.current_decay_chance = [0]
+        self.decay_chance_growth = [0]
+        self.decay_to = [None]
+        self.reacts_as = []
+        self.reacts_to = []
+        self.reaction_results = []
+        self.reaction_odds = []
+        self.freeze_at = None
+        self.freeze_to = None
+        self.melt_at = 5
+        self.melt_to = Fire
     def reaction_feedback(self, i):
         pass
