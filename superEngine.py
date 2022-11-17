@@ -248,7 +248,7 @@ class CAM:
         self.vz = 0
 
 class Widget:
-    def __init__(self, x, y, w, h, id=None, color=WHITE, text="", text_size=30, text_color=WHITE, clickable=False, dragable=False, horizontal_align=True, vertical_align=True, text_align=True, text_x_offset=0, text_y_offset=0, borders=Color(0,0,0,0), visible=True):
+    def __init__(self, x, y, w, h, id=None, color=WHITE, text="", text_size=30, text_color=WHITE, clickable=False, dragable=False, horizontal_align=START, vertical_align=START, text_align=CENTER, text_x_offset=0, text_y_offset=0, borders=Color(0,0,0,0), visible=True):
         self.x = x
         self.y = y
         self.w = w
@@ -319,7 +319,7 @@ class Widget:
                 y = int(get_screen_height()/2 + self.y)
             draw_rectangle_lines(x, y, int(self.w), int(self.h), self.borders)
             draw_rectangle(x, y, int(self.w), int(self.h), self.color)
-            draw_text(self.text, int( x + (self.w/2-len(self.text)*self.text_size/3 if self.text_align else 0) + self.text_x_offset), int(y + self.h/2 - self.text_size/2 + self.text_y_offset), int(self.text_size), self.text_color)
+            draw_text(self.text, int( x + (self.w/2-len(self.text)*self.text_size/3 if self.text_align == CENTER else 0) + self.text_x_offset), int(y + self.h/2 - self.text_size/2 + self.text_y_offset), int(self.text_size), self.text_color)
             for child in self.children:
                 if child.update(): on = True
         return on

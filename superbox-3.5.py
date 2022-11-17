@@ -12,7 +12,8 @@ world = World(300, 150)
 camera = CAM(0, 0, 5) 
 playing = True
 mouse_on_clickable = False
-cursor_size = 4
+brush_size = 3
+brush_density = 100
 
 materials = [Stone, Sand, Water, Sky_stone, Wood, Fire, Steam, Ash, Dirt, Lava, Tnt, Ice, Plastic, Super_Ice, Oil]
 selected = 0
@@ -20,29 +21,48 @@ selected = 0
 views = ['color', 'energy', 'velocity', 'moister', 'temperature']
 view = 0
 
+background_color = Color(130,130,130,140)
+button_color = Color(70, 70, 70, 110)
+button_down_color = Color(30, 30, 30, 130)
+text_color = Color(25,25,25,255)
+transparent = Color(0,0,0,0)
+
 # ---- hud setup ----
 hud = Widget(0, 0, 1, 1, "hud", Color(0, 0, 0, 0))
-hud.add_child(Widget(10, 5, width-55, 30, "windometer", color=Color(0,0,0,0), borders=WHITE))
-hud.add_child(Widget(10, 40, width-55, 30, "fpsmeter", color=Color(0,0,0,0), borders=WHITE))
-hud.add_child(Widget(10, 5, 30, 30, "close", text="x", text_size=25, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, text_x_offset=3, text_y_offset=0, clickable=True))
-hud.add_child(Widget(10, 40, 30, 30, "fullscreen", text="[ ]", text_size=18, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, text_x_offset=11, text_y_offset=1, clickable=True))
-hud.add_child(Widget(10, 75, 30, 30, "pause", text="| |", text_size=16, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, text_x_offset=11, text_y_offset=1, clickable=True))
-hud.add_child(Widget(10, 5, 30, 30, "materials_btn", text="M", text_size=20, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
-hud.add_child(Widget(10, 40, 30, 30, "tools_btn", text="T", text_size=20, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
-hud.add_child(Widget(10, 75, 30, 30, "view_btn", text="V", text_size=20, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
-hud.add_child(Widget(10, -20, 30, 30, "save_btn", text="S", text_size=20, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=CENTER, clickable=True))
-hud.add_child(Widget(10, 15, 30, 30, "load_btn", text="L", text_size=20, color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=CENTER, clickable=True))
+hud.add_child(Widget(10, 5, width-55, 30, "windometer", color=transparent, borders=WHITE))
+hud.add_child(Widget(10, 40, width-55, 30, "fpsmeter", color=transparent, borders=WHITE))
+hud.add_child(Widget(10, 5, 30, 30, "close", text="x", text_size=25, color=background_color, borders=WHITE, horizontal_align=END, text_x_offset=3, text_y_offset=0, clickable=True))
+hud.add_child(Widget(10, 40, 30, 30, "fullscreen", text="[ ]", text_size=18, color=background_color, borders=WHITE, horizontal_align=END, text_x_offset=11, text_y_offset=1, clickable=True))
+hud.add_child(Widget(10, 75, 30, 30, "pause", text="| |", text_size=16, color=background_color, borders=WHITE, horizontal_align=END, text_x_offset=11, text_y_offset=1, clickable=True))
+hud.add_child(Widget(10, 5, 30, 30, "materials_btn", text="M", text_size=20, color=background_color, borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
+hud.add_child(Widget(10, 40, 30, 30, "tools_btn", text="T", text_size=20, color=background_color, borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
+hud.add_child(Widget(10, 75, 30, 30, "view_btn", text="V", text_size=20, color=background_color, borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
+hud.add_child(Widget(10, -20, 30, 30, "save_btn", text="S", text_size=20, color=background_color, borders=WHITE, horizontal_align=END, vertical_align=CENTER, clickable=True))
+hud.add_child(Widget(10, 15, 30, 30, "load_btn", text="L", text_size=20, color=background_color, borders=WHITE, horizontal_align=END, vertical_align=CENTER, clickable=True))
 
-hud.add_child(Widget(45, 5, 470, 20, "tools_head", text="T O O L S", text_size=20, text_color=Color(25,25,25,255), text_x_offset=15, color=WHITE, horizontal_align=END, vertical_align=END, dragable=True, visible=False))
-hud.get_child("tools_head").add_child(Widget(10, 20, 470, 300, "tools", text='WIP', color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END))
+hud.add_child(Widget(45, 5, 470, 20, "tools_head", text="T O O L S", text_size=20, text_color=text_color, text_x_offset=15, color=WHITE, horizontal_align=END, vertical_align=END, dragable=True, visible=True))
+hud.get_child("tools_head").add_child(Widget(0, 20, 470, 135, "tools", color=background_color, borders=WHITE, horizontal_align=END, vertical_align=END))
 
-hud.add_child(Widget(45, 5, 470, 20, "materials_head", text="M A T E R I A L S", text_size=20, text_color=Color(25,25,25,255), text_x_offset=15, color=WHITE, horizontal_align=END, vertical_align=END, dragable=True, visible=False))
-hud.get_child("materials_head").add_child(Widget(0, 20, 470, 300, "materials", color=Color(130,130,130,140), borders=WHITE, horizontal_align=END, vertical_align=END))
+hud.get_child("tools").add_child(Widget(5, 45, 460, 40, id='density',text='brush density:', text_size=25, color=button_color, borders=WHITE, horizontal_align=END, vertical_align=END, text_align=START, text_x_offset=5))
+hud.get_child("density").add_child(Widget(25, 5, 80, 30, id='density-100', text='100%', text_size=26, text_x_offset=5, text_y_offset=1, color=button_down_color, borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
+hud.get_child("density").add_child(Widget(25+85*1, 5, 80, 30, id='density-60', text='60%', text_size=26, text_x_offset=5, text_y_offset=1, color=button_color, borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
+hud.get_child("density").add_child(Widget(25+85*2, 5, 80, 30, id='density-30', text='30%', text_size=26, text_x_offset=5, text_y_offset=1, color=button_color, borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
+
+hud.get_child("tools").add_child(Widget(5, 90, 460, 40, id='size',text='brush size:', text_size=25, color=button_color, borders=WHITE, horizontal_align=END, vertical_align=END, text_align=START, text_x_offset=5))
+hud.get_child("size").add_child(Widget(42+55*0, 5, 50, 30, id='size-15', text='15', text_size=26, text_x_offset=5, text_y_offset=1, color=button_color, borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
+hud.get_child("size").add_child(Widget(42+55*1, 5, 50, 30, id='size-10', text='10', text_size=26, text_x_offset=5, text_y_offset=1, color=button_color, borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
+hud.get_child("size").add_child(Widget(42+55*2, 5, 50, 30, id='size-5', text='5', text_size=26, text_x_offset=5, text_y_offset=1, color=button_color, borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
+hud.get_child("size").add_child(Widget(42+55*3, 5, 50, 30, id='size-3', text='3', text_size=26, text_x_offset=5, text_y_offset=1, color=button_down_color, borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
+hud.get_child("size").add_child(Widget(42+55*4, 5, 50, 30, id='size-1', text='1', text_size=26, text_x_offset=5, text_y_offset=1, color=button_color, borders=WHITE, horizontal_align=END, vertical_align=END, clickable=True))
+
+
+hud.add_child(Widget(45, 5, 470, 20, "materials_head", text="M A T E R I A L S", text_size=20, text_color=text_color, text_x_offset=15, color=WHITE, horizontal_align=END, vertical_align=END, dragable=True, visible=False))
+hud.get_child("materials_head").add_child(Widget(0, 20, 470, 300, "materials", color=background_color, borders=WHITE, horizontal_align=END, vertical_align=END))
 
 hud.add_child(Widget(5, 5, 150, 20, "view_mode", text="view mode: ", color=Color(0, 0, 0, 0), text_size=20, vertical_align=False, text_align=False))
 
-hud.get_child("windometer").add_child(Widget(0, 0, 120, hud.get_child("windometer").h, id="wind", color=Color(130,130,130,140), text="windometer", text_size=20, text_x_offset=13, clickable=True))
-hud.get_child("fpsmeter").add_child(Widget(0, 0, 120, hud.get_child("fpsmeter").h, "wind", color=Color(130,130,130,140), text="FPS-meter", text_size=20, text_x_offset=7))
+hud.get_child("windometer").add_child(Widget(0, 0, 120, hud.get_child("windometer").h, id="wind", color=background_color, text="windometer", text_size=20, text_x_offset=13, clickable=True))
+hud.get_child("fpsmeter").add_child(Widget(0, 0, 120, hud.get_child("fpsmeter").h, "wind", color=background_color, text="FPS-meter", text_size=20, text_x_offset=7))
 def windometer_update():
     hud.get_child("windometer").w = width-55
     draw_rectangle(int(hud.get_child("windometer").x + hud.get_child("windometer").w/2), int(hud.get_child("windometer").y + 4), 1, hud.get_child("windometer").h-8, WHITE)
@@ -83,9 +103,9 @@ def select_material(m):
     selected = m
     for index, button in enumerate(hud.get_child("materials").children):
         if index == m:
-            button.color = Color(30, 30, 30, 130)
+            button.color = button_down_color
         else:
-            button.color = Color(70, 70, 70, 110)
+            button.color = button_color
 def wind_toggle():
     world.wind_toggle = not world.wind_toggle
 def save():
@@ -114,7 +134,22 @@ def load():
     f.close()
 def view_mode_update():
     hud.get_child("view_mode").text = views[view]
-
+def set_brush_size(s):
+    global brush_size
+    brush_size = s
+    for button in hud.get_child('size').children:
+        if button.id == 'size-'+str(s):
+            button.color = button_down_color
+        else:
+            button.color = button_color
+def set_brush_density(d):
+    global brush_density
+    for button in hud.get_child('density').children:
+        if button.id == 'density-'+str(d):
+            button.color = button_down_color
+        else:
+            button.color = button_color
+    brush_density = d
 hud.get_child("view_mode").custom_updates.append(view_mode_update)
 hud.get_child("windometer").custom_updates.append(windometer_update)
 hud.get_child("wind").execute = wind_toggle
@@ -128,8 +163,13 @@ hud.get_child("view_btn").execute = view_mode
 hud.get_child("save_btn").execute = save
 hud.get_child("load_btn").execute = load
 for i in range(len(materials)):
-    hud.get_child("materials").add_child(Widget((i%3)*155+5, int(i/3)*45+5, 150, 40, id="m-"+str(i), text=materials[i].__name__.replace('_', ' '), text_size=20, color=Color(70, 70, 70, 110), borders=WHITE, vertical_align=END, horizontal_align=END, clickable=True))
+    hud.get_child("materials").add_child(Widget((i%3)*155+5, int(i/3)*45+5, 150, 40, id="m-"+str(i), text=materials[i].__name__.replace('_', ' '), text_size=20, color=button_color, borders=WHITE, vertical_align=END, horizontal_align=END, clickable=True))
     hud.get_child("m-"+str(i)).execute = [select_material, i]
+for i in [1, 3, 5, 10, 15]:
+    hud.get_child("size-"+str(i)).execute = [set_brush_size, i]
+for i in [30, 60, 100]:
+    hud.get_child("density-"+str(i)).execute = [set_brush_density, i]
+
 hud.get_child("materials").h = ceil(len(materials)/3)*45+5
 select_material(0)
 # ---- window setup ----
@@ -152,16 +192,16 @@ while not window_should_close():
         if (is_mouse_button_down(MOUSE_BUTTON_LEFT) or is_mouse_button_down(MOUSE_BUTTON_RIGHT)) and not (is_key_down(KEY_LEFT_SHIFT) or is_key_down(KEY_RIGHT_SHIFT)):
             x = int((get_mouse_x() - camera.x) / camera.z) % world.width
             y = int((- get_mouse_y() + camera.y) / camera.z) % world.height
-            for y0 in range(int(-cursor_size-1), int(cursor_size+1)):
-                for x0 in range(int(-cursor_size-1), int(cursor_size+1)):
-                    if y0**2 + x0**2 <= cursor_size**2:
+            for y0 in range(int(-brush_size-1), int(brush_size+1)):
+                for x0 in range(int(-brush_size-1), int(brush_size+1)):
+                    if y0**2 + x0**2 <= brush_size**2:
                         x1 = (x0 + x) % world.width
                         y1 = (y0 + y) % world.height
                         if x1 < world.width and x1 >= 0 and y1 < world.height and y1 >= 0:
-                                world.world[y1][x1] = materials[selected]()
-                                if is_mouse_button_down(MOUSE_BUTTON_RIGHT):
-                                    world.world[y1][x1] = None
-
+                                if random() < (brush_density/100)**2:
+                                    world.world[y1][x1] = materials[selected]()
+                                    if is_mouse_button_down(MOUSE_BUTTON_RIGHT):
+                                        world.world[y1][x1] = None
     if is_key_pressed(KEY_F): fullscreen()
     if is_key_pressed(KEY_SPACE): pause()
     if is_key_pressed(KEY_TAB) or is_key_pressed(KEY_V): view_mode()
