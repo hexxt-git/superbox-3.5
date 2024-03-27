@@ -13,6 +13,7 @@ python pixel simulation with ui
 - install dependencies
 
   ```pip install pyray```
+  ```pip install raylib```
 - run the code
 
   ```python3 superbox-3.5.py```
